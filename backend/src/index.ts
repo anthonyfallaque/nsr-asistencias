@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import 'express-async-errors';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -12,6 +13,8 @@ import { pool } from './db.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
+
+app.set('trust proxy', 1);
 
 // ── Seguridad ────────────────────────────────────────────────
 app.use(helmet());
