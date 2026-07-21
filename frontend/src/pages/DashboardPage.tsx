@@ -1,7 +1,7 @@
 import { useState, useMemo, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { asistencias as asistenciasApi } from '../services/api';
-import type { ResumenSeccion, AsistenciaAlumna } from '../types';
+import type { ResumenSeccion, AsistenciaAlumna, TendenciaDia } from '../types';
 
 const TODAY = new Date().toISOString().slice(0, 10);
 
@@ -126,6 +126,85 @@ function DonutChart({ puntuales, tardanzas, ausentes, justificadas }: {
       <text x={cx} y={60} textAnchor="middle" fontSize="24" fontWeight="600" fill="#111827">{pct}%</text>
       <text x={cx} y={78} textAnchor="middle" fontSize="10" fill="#9CA3AF">asistencia hoy</text>
     </svg>
+  );
+}
+
+// ─── Weekly Attendance Chart ──────────────────────────────────────────────────
+
+function WeeklyChart({ data }: { data: TendenciaDia[] }) {
+  if (!data.length) return null;
+  const days = data.slice(-7);
+  const BAR_H = 80;
+
+  function pctOf(d: TendenciaDia) {
+    return d.total > 0
+      ? Math.round((d.puntuales + d.tardanzas + d.justificadas) / d.total * 100)
+      : 0;
+  }
+  function pctColor(p: number) {
+    return p >= 90 ? '#059669' : p >= 75 ? '#D97706' : '#EF4444';
+  }
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-sm font-medium text-gray-700">Asistencia semanal</p>
+        <div className="flex items-center gap-3 text-[11px] text-gray-400">
+          <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-[#059669]"/>≥ 90%</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-amber-400"/>75-89%</span>
+          <span className="flex items-center gap-1"><span className="inline-block w-2 h-2 rounded-sm bg-red-400"/>&lt; 75%</span>
+        </div>
+      </div>
+
+      {/* Referencia horizontal 90% */}
+      <div className="relative mt-5" style={{ paddingBottom: 28 }}>
+        {/* Líneas de referencia */}
+        {[90, 75].map(ref => (
+          <div key={ref} className="absolute w-full flex items-center gap-1 pointer-events-none"
+            style={{ bottom: 28 + ref * BAR_H / 100 - 1 }}>
+            <div className="flex-1 border-t border-dashed border-gray-200" />
+            <span className="text-[9px] text-gray-300 w-6 text-right">{ref}%</span>
+          </div>
+        ))}
+
+        {/* Barras */}
+        <div className="flex items-end gap-2" style={{ height: BAR_H }}>
+          {days.map((d, i) => {
+            const isToday = i === days.length - 1;
+            const pct = pctOf(d);
+            const barH = Math.max(Math.round(pct * BAR_H / 100), 2);
+            const color = isToday ? '#002147' : pctColor(pct) + '33'; // 33 = ~20% opacity
+
+            return (
+              <div key={d.fecha} className="flex-1 flex flex-col items-center gap-0">
+                <div className="flex items-end w-full" style={{ height: BAR_H }}>
+                  <div className="w-full rounded-t" style={{ height: barH, background: color,
+                    ...(isToday ? {} : { background: '#E5E7EB' }) }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Etiquetas eje X */}
+        <div className="flex gap-2 mt-2">
+          {days.map((d, i) => {
+            const isToday = i === days.length - 1;
+            const pct = pctOf(d);
+            return (
+              <div key={d.fecha} className="flex-1 flex flex-col items-center gap-0.5">
+                <span className="text-[10px] font-semibold" style={{ color: isToday ? pctColor(pct) : '#D1D5DB' }}>
+                  {pct > 0 ? `${pct}%` : '—'}
+                </span>
+                <span className={`text-[10px] ${isToday ? 'text-gray-600 font-semibold' : 'text-gray-400'}`}>
+                  {isToday ? 'Hoy' : d.dia}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -260,6 +339,13 @@ export default function DashboardPage() {
     refetchInterval: 30_000,
   });
 
+  const { data: tendencia = [] } = useQuery({
+    queryKey: ['tendencia', 7],
+    queryFn: () => asistenciasApi.tendencia(7),
+    staleTime: 5 * 60_000,
+    refetchInterval: 10 * 60_000,
+  });
+
   const totales = useMemo(() => resumen.reduce((acc, r) => ({
     total:        acc.total        + Number(r.total),
     puntuales:    acc.puntuales    + Number(r.puntuales),
@@ -317,29 +403,39 @@ export default function DashboardPage() {
           icon={Icon.xCircle} />
       </div>
 
-      {/* Donut */}
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <p className="text-sm font-medium text-gray-700 mb-5">Distribución del día</p>
-        <div className="flex items-center gap-8 flex-wrap">
-          <DonutChart
-            puntuales={totales.puntuales} tardanzas={totales.tardanzas}
-            ausentes={totales.ausentes} justificadas={totales.justificadas}
-          />
-          <div className="flex flex-col gap-3">
-            {[
-              { label: 'Puntuales',    value: totales.puntuales,    dot: 'bg-[#002147]' },
-              { label: 'Tardanzas',    value: totales.tardanzas,    dot: 'bg-amber-500'  },
-              { label: 'Justificadas', value: totales.justificadas, dot: 'bg-blue-500'   },
-              { label: 'Ausentes',     value: totales.ausentes,     dot: 'bg-red-500'    },
-            ].map(s => (
-              <div key={s.label} className="flex items-center gap-2.5">
-                <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} />
-                <span className="text-sm text-gray-500 w-24">{s.label}</span>
-                <span className="text-sm font-semibold text-gray-900" style={{ fontVariantNumeric: 'tabular-nums' }}>{s.value}</span>
-              </div>
-            ))}
+      {/* Donut + Weekly chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+        {/* Donut */}
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-5">
+          <p className="text-sm font-medium text-gray-700 mb-5">Distribución del día</p>
+          <div className="flex items-center gap-6">
+            <DonutChart
+              puntuales={totales.puntuales} tardanzas={totales.tardanzas}
+              ausentes={totales.ausentes} justificadas={totales.justificadas}
+            />
+            <div className="flex flex-col gap-3 flex-1">
+              {[
+                { label: 'Puntuales',    value: totales.puntuales,    dot: 'bg-[#002147]' },
+                { label: 'Tardanzas',    value: totales.tardanzas,    dot: 'bg-amber-500'  },
+                { label: 'Justificadas', value: totales.justificadas, dot: 'bg-blue-500'   },
+                { label: 'Ausentes',     value: totales.ausentes,     dot: 'bg-red-500'    },
+              ].map(s => (
+                <div key={s.label} className="flex items-center gap-2.5">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${s.dot}`} />
+                  <span className="text-sm text-gray-500 flex-1">{s.label}</span>
+                  <span className="text-sm font-semibold text-gray-900" style={{ fontVariantNumeric: 'tabular-nums' }}>{s.value}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Weekly chart */}
+        <div className="lg:col-span-3">
+          <WeeklyChart data={tendencia as TendenciaDia[]} />
+        </div>
+
       </div>
 
       {/* Secciones — cards expandibles */}
