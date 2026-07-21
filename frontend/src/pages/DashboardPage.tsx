@@ -167,7 +167,7 @@ function TrendChart({ data }: { data: TendenciaDia[] }) {
 function StudentRow({ alumna }: { alumna: AsistenciaAlumna }) {
   const estado = alumna.estado ?? 'ausente';
   const time = alumna.hora_escaneo
-    ? new Date(alumna.hora_escaneo).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })
+    ? new Date(alumna.hora_escaneo).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })
     : '—';
   return (
     <div className="flex items-center gap-4 px-5 py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
