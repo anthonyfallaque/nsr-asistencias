@@ -1,6 +1,6 @@
 import type {
   ResultadoEscaneo, ResumenSeccion, AsistenciaAlumna,
-  Alumna, Grado, Seccion, OfflineScan,
+  Alumna, Grado, Seccion, OfflineScan, TendenciaDia,
 } from '../types';
 
 const BASE = (import.meta.env.VITE_API_URL ?? '') + '/api';
@@ -67,6 +67,15 @@ export const asistencias = {
       method: 'POST',
       body: JSON.stringify({ alumna_id, fecha, justificacion }),
     }),
+
+  tendencia: (dias = 7) =>
+    http<TendenciaDia[]>(`/asistencias/tendencia?dias=${dias}`),
+
+  marcarManual: (alumna_id: string, fecha: string, estado: string, justificacion?: string) =>
+    http<{ ok: boolean }>('/asistencias/marcar-manual', {
+      method: 'POST',
+      body: JSON.stringify({ alumna_id, fecha, estado, justificacion }),
+    }),
 };
 
 // ── Alumnas ──────────────────────────────────────────────────
@@ -87,6 +96,12 @@ export const alumnas = {
     http<{ qr_image: string; nombre_completo: string; grado: string; seccion: string }>(
       `/alumnas/${id}/qr`
     ),
+
+  crear: (data: { nombres: string; apellidos: string; dni?: string; seccion_id: number; foto_url?: string }) =>
+    http<{ id: string; qr_token: string }>('/alumnas', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };
 
 // ── Reportes ─────────────────────────────────────────────────

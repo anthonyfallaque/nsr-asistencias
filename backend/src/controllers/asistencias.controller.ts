@@ -203,3 +203,74 @@ export async function justificar(req: Request, res: Response): Promise<void> {
 
   res.json({ ok: true });
 }
+
+// ── Tendencia de asistencia (últimos N días) ─────────────────
+export async function tendencia(req: Request, res: Response): Promise<void> {
+  const dias = Math.min(Math.max(parseInt(String(req.query.dias)) || 7, 1), 30);
+
+  const rows = await query<{
+    dia: string; fecha: string;
+    puntuales: number; tardanzas: number; justificadas: number; ausentes: number; total: number;
+  }>(
+    `SELECT
+       TO_CHAR(d.fecha::date, 'DD/MM')                                               AS dia,
+       d.fecha::date::text                                                            AS fecha,
+       COALESCE(SUM(CASE WHEN a.estado = 'puntual'     THEN 1 ELSE 0 END), 0)::int  AS puntuales,
+       COALESCE(SUM(CASE WHEN a.estado = 'tardanza'    THEN 1 ELSE 0 END), 0)::int  AS tardanzas,
+       COALESCE(SUM(CASE WHEN a.estado = 'justificada' THEN 1 ELSE 0 END), 0)::int  AS justificadas,
+       (COUNT(al.id) - COUNT(a.alumna_id))::int                                      AS ausentes,
+       COUNT(al.id)::int                                                              AS total
+     FROM generate_series(
+       CURRENT_DATE - ($1 - 1) * INTERVAL '1 day',
+       CURRENT_DATE,
+       '1 day'::interval
+     ) d(fecha)
+     CROSS JOIN (SELECT id FROM alumnas WHERE activa = true) al
+     LEFT JOIN asistencias a
+       ON a.alumna_id = al.id AND a.fecha = d.fecha::date
+     GROUP BY d.fecha
+     ORDER BY d.fecha`,
+    [dias]
+  );
+
+  res.json(rows);
+}
+
+// ── Marcar asistencia manual ──────────────────────────────────
+const MarcarManualSchema = z.object({
+  alumna_id:     z.string().uuid(),
+  fecha:         z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  estado:        z.enum(['puntual', 'tardanza', 'ausente', 'justificada']),
+  justificacion: z.string().min(3).max(500).optional(),
+});
+
+export async function marcarManual(req: Request, res: Response): Promise<void> {
+  const parsed = MarcarManualSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Datos inválidos', detalles: parsed.error.flatten() });
+    return;
+  }
+
+  const { alumna_id, fecha, estado, justificacion } = parsed.data;
+
+  if (estado === 'ausente') {
+    await query(
+      `DELETE FROM asistencias WHERE alumna_id = $1 AND fecha = $2`,
+      [alumna_id, fecha]
+    );
+  } else {
+    await query(
+      `INSERT INTO asistencias (alumna_id, fecha, hora_escaneo, estado, justificacion, registrado_por)
+       VALUES ($1, $2, NOW(), $3, $4, $5)
+       ON CONFLICT (alumna_id, fecha)
+       DO UPDATE SET
+         estado         = $3,
+         justificacion  = CASE WHEN $4::text IS NOT NULL THEN $4 ELSE asistencias.justificacion END,
+         registrado_por = $5,
+         updated_at     = NOW()`,
+      [alumna_id, fecha, estado, justificacion ?? null, req.usuario!.id]
+    );
+  }
+
+  res.json({ ok: true });
+}

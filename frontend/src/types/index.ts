@@ -55,6 +55,16 @@ export interface AsistenciaAlumna {
   justificacion?: string;
 }
 
+export interface TendenciaDia {
+  dia: string;
+  fecha: string;
+  puntuales: number;
+  tardanzas: number;
+  justificadas: number;
+  ausentes: number;
+  total: number;
+}
+
 export interface OfflineScan {
   qr_token: string;
   scanned_at: string;
