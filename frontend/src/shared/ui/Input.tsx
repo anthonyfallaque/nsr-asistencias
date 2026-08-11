@@ -38,7 +38,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         className={cn(
           'w-full h-8 bg-surface text-content text-base rounded-md',
           'border border-border',
-          'placeholder:text-content-subtle',
+          // El placeholder transmite información; necesita 4.5:1, no el 3:1
+          // de un elemento decorativo.
+          'placeholder:text-content-muted',
           'transition-shadow duration-fast ease-out',
           'focus:outline-none focus:border-accent focus:shadow-focus',
           'disabled:bg-surface-sunken disabled:text-content-subtle disabled:cursor-not-allowed',

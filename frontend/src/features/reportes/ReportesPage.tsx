@@ -155,7 +155,7 @@ export default function ReportesPage() {
           <ul className="divide-y divide-border">
             {ranking.map((fila, indice) => (
               <li key={fila.alumna_id ?? indice} className="flex items-center gap-3 px-4 py-2.5">
-                <span className="text-xs font-medium text-content-subtle tabular-nums w-4 shrink-0">
+                <span className="text-xs font-medium text-content-muted tabular-nums w-4 shrink-0">
                   {indice + 1}
                 </span>
                 <div className="min-w-0 flex-1">

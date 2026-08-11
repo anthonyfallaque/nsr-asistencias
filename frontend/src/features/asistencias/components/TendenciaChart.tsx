@@ -88,7 +88,7 @@ export function TendenciaChart({ datos }: { datos: TendenciaDia[] }) {
             style={{ bottom: 34 + (referencia * ALTO) / 100 }}
           >
             <div className="flex-1 border-t border-dashed border-border" />
-            <span className="text-2xs text-content-subtle tabular-nums w-7 text-right">
+            <span className="text-2xs text-content-muted tabular-nums w-7 text-right">
               {referencia}%
             </span>
           </div>
@@ -138,7 +138,7 @@ export function TendenciaChart({ datos }: { datos: TendenciaDia[] }) {
               <span
                 className={cn(
                   'text-2xs tabular-nums font-medium',
-                  !d.lectivo && 'text-content-subtle',
+                  !d.lectivo && 'text-content-muted',
                   d.lectivo && activo === i && 'text-content',
                   d.lectivo && activo !== i && 'text-content-muted'
                 )}
@@ -148,7 +148,7 @@ export function TendenciaChart({ datos }: { datos: TendenciaDia[] }) {
               <span
                 className={cn(
                   'text-2xs truncate w-full text-center',
-                  d.hoy ? 'text-accent font-semibold' : 'text-content-subtle'
+                  d.hoy ? 'text-accent font-semibold' : 'text-content-muted'
                 )}
               >
                 {d.hoy ? 'Hoy' : d.dia.dia}

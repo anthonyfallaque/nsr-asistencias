@@ -29,10 +29,15 @@
   --color-border-focus: #002147;
 
   /* ── Texto ────────────────────────────────────────────────────────────── */
-  --color-text: #14171a;            /* titulares y datos */
-  --color-text-secondary: #545d6b;  /* cuerpo */
-  --color-text-muted: #79818f;      /* etiquetas, metadatos */
-  --color-text-subtle: #9aa1ac;     /* placeholders, deshabilitado */
+  /* Contraste medido sobre --color-canvas (#fbfbfc). Los tres primeros
+     superan 4.5:1 y son aptos para texto a cualquier tamaño.
+     `subtle` se queda en 3.8:1: cumple el 3:1 exigido a elementos de
+     interfaz no textuales, así que solo debe usarse en iconos decorativos y
+     controles deshabilitados — nunca en texto que haya que leer. */
+  --color-text: #14171a;            /* 17.4:1 — titulares y datos */
+  --color-text-secondary: #545d6b;  /*  6.4:1 — cuerpo */
+  --color-text-muted: #667085;      /*  4.8:1 — etiquetas, metadatos, placeholders */
+  --color-text-subtle: #79818f;     /*  3.8:1 — solo iconos y deshabilitado */
   --color-text-inverse: #ffffff;
 
   /* ── Acento institucional (acción) ────────────────────────────────────── */

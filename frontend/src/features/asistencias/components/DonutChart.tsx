@@ -111,7 +111,7 @@ export function DonutLegend({ datos }: { datos: Record<EstadoAsistencia, number>
               {ESTADOS[estado].label}
             </span>
             <span className="text-sm font-medium text-content tabular-nums">{valor}</span>
-            <span className="text-xs text-content-subtle tabular-nums w-9 text-right">
+            <span className="text-xs text-content-muted tabular-nums w-9 text-right">
               {pct}%
             </span>
           </li>

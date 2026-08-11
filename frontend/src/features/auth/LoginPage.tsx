@@ -142,7 +142,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-xs text-content-subtle mt-6">
+        <p className="text-center text-xs text-content-muted mt-6">
           © {new Date().getFullYear()} I. E. Nuestra Señora del Rosario · Chiclayo, Perú
         </p>
       </div>
