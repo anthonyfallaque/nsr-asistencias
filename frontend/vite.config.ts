@@ -47,7 +47,21 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // ExcelJS pesa ~940 KB y solo lo usa quien exporta un reporte.
+        // Precachearlo obligaba a todos los dispositivos —incluido el móvil
+        // del portero, con datos móviles— a descargarlo en segundo plano.
+        // Queda fuera del precache y se guarda en caché la primera vez que
+        // se usa de verdad.
+        globIgnores: ['**/exceljs*.js'],
         runtimeCaching: [
+          {
+            urlPattern: /exceljs.*\.js$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'vendor-pesado',
+              expiration: { maxEntries: 2, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
           {
             urlPattern: /^https?:\/\/.*\/api\/(alumnas|asistencias\/resumen)/,
             handler: 'NetworkFirst',

@@ -19,7 +19,9 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   );
 }
 
-export interface CardHeaderProps extends HTMLAttributes<HTMLDivElement> {
+// `title` se excluye de los atributos nativos: aquí es el encabezado visible
+// del bloque, no el tooltip del navegador, y admite nodos además de texto.
+export interface CardHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;
   description?: ReactNode;
   /** Acciones alineadas a la derecha: botones, filtros, contadores. */
