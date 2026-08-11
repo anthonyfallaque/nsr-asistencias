@@ -1,5 +1,9 @@
 import { Outlet, useNavigate } from 'react-router-dom';
+import { KeyRound } from 'lucide-react';
+import { Button } from '@/shared/ui';
+import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { useAuth, useUsuario } from '@/features/auth/store';
+import { CambiarPasswordModal } from '@/features/auth/CambiarPasswordModal';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 
@@ -31,6 +35,7 @@ export function Layout() {
   const usuario = useUsuario();
   const logout = useAuth((s) => s.logout);
   const navigate = useNavigate();
+  const password = useDisclosure();
 
   function cerrarSesion() {
     logout();
@@ -38,6 +43,7 @@ export function Layout() {
   }
 
   const nombre = usuario?.nombre ?? '';
+  const debeCambiar = usuario?.debe_cambiar_password === true;
 
   return (
     <div className="min-h-screen flex bg-canvas">
@@ -46,6 +52,7 @@ export function Layout() {
         nombre={nombreCorto(nombre)}
         iniciales={iniciales(nombre)}
         onLogout={cerrarSesion}
+        onCambiarPassword={password.open}
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
@@ -65,13 +72,35 @@ export function Layout() {
         {/* pb-20 en móvil deja sitio a la barra inferior; sin él, la última
             fila de cualquier lista queda tapada y parece que no existe. */}
         <main className="flex-1 px-4 py-5 pb-24 md:px-6 md:pb-8">
-          <div className="mx-auto w-full max-w-content">
+          <div className="mx-auto w-full max-w-content flex flex-col gap-4">
+            {debeCambiar && (
+              <div
+                role="alert"
+                className="flex flex-col sm:flex-row sm:items-center gap-3 bg-warning-soft border border-warning-border rounded-lg px-4 py-3"
+              >
+                <KeyRound className="h-4 w-4 text-warning shrink-0" aria-hidden="true" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-base font-medium text-content">
+                    Tu contraseña es la inicial
+                  </p>
+                  <p className="text-sm text-content-secondary">
+                    Cámbiala para proteger el acceso a los datos de las alumnas.
+                  </p>
+                </div>
+                <Button variant="primary" size="md" onClick={password.open} className="shrink-0">
+                  Cambiar ahora
+                </Button>
+              </div>
+            )}
+
             <Outlet />
           </div>
         </main>
       </div>
 
       <BottomNav rol={usuario?.rol} />
+
+      <CambiarPasswordModal open={password.isOpen} onClose={password.close} />
     </div>
   );
 }

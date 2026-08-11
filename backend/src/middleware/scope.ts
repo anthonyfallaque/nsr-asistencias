@@ -46,9 +46,19 @@ async function resolverAmbito(rol: string, usuarioId: string): Promise<AmbitoUsu
  * Ámbito para pasar como parámetro a una consulta.
  * `null` significa "sin restricción" y el SQL lo trata con
  * `($n::int[] IS NULL OR columna = ANY($n))`.
+ *
+ * Aquí conviven dos valores que parecen lo mismo y significan lo contrario:
+ *
+ *   - `req.ambito` ausente  → el middleware no corrió. Se deniega todo (`[]`).
+ *   - `req.ambito.secciones` a `null` → corrió y no hay restricción (`null`).
+ *
+ * Por eso NO puede escribirse `req.ambito?.secciones ?? []`: `??` también
+ * dispara con `null`, de modo que el caso "sin restricción" se convertiría
+ * en "sin acceso" y admin y directora no verían una sola fila en todo el
+ * sistema. La comprobación tiene que ser sobre el objeto, no sobre el campo.
  */
 export function ambitoDe(req: Request): number[] | null {
-  return req.ambito?.secciones ?? [];
+  return req.ambito ? req.ambito.secciones : [];
 }
 
 /**

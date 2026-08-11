@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { PanelLeftClose, PanelLeftOpen, LogOut } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, LogOut, KeyRound } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui';
 import { navParaRol, ROL_LABEL, type Rol } from '@/config/navigation';
@@ -35,6 +35,7 @@ export interface SidebarProps {
   nombre: string;
   iniciales: string;
   onLogout: () => void;
+  onCambiarPassword: () => void;
 }
 
 /**
@@ -48,7 +49,13 @@ export interface SidebarProps {
  * El estado plegado persiste en localStorage: en pantallas pequeñas el
  * usuario lo pliega una vez y no debería tener que repetirlo cada mañana.
  */
-export function Sidebar({ rol, nombre, iniciales, onLogout }: SidebarProps) {
+export function Sidebar({
+  rol,
+  nombre,
+  iniciales,
+  onLogout,
+  onCambiarPassword,
+}: SidebarProps) {
   const [expandido, setExpandido] = useState(
     () => localStorage.getItem('nsr-sidebar') !== 'collapsed'
   );
@@ -143,34 +150,48 @@ export function Sidebar({ rol, nombre, iniciales, onLogout }: SidebarProps) {
           )}
         </div>
 
-        <div className={cn('flex mt-1', expandido ? 'gap-1' : 'flex-col gap-1 items-center')}>
+        <div className={cn('flex flex-col mt-1', !expandido && 'items-center')}>
           <Button
             variant="ghost"
             size="sm"
-            onClick={onLogout}
+            onClick={onCambiarPassword}
             iconOnly={!expandido}
-            aria-label={!expandido ? 'Cerrar sesión' : undefined}
-            icon={<LogOut className="h-3.5 w-3.5" aria-hidden="true" />}
-            className={cn(expandido && 'flex-1 justify-start')}
+            aria-label={!expandido ? 'Cambiar contraseña' : undefined}
+            icon={<KeyRound className="h-3.5 w-3.5" aria-hidden="true" />}
+            className={cn(expandido && 'w-full justify-start')}
           >
-            Cerrar sesión
+            Cambiar contraseña
           </Button>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            iconOnly
-            onClick={alternar}
-            aria-label={expandido ? 'Plegar la navegación' : 'Desplegar la navegación'}
-            aria-expanded={expandido}
-            icon={
-              expandido ? (
-                <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
-              ) : (
-                <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
-              )
-            }
-          />
+          <div className={cn('flex gap-1', expandido ? 'items-center' : 'flex-col items-center')}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLogout}
+              iconOnly={!expandido}
+              aria-label={!expandido ? 'Cerrar sesión' : undefined}
+              icon={<LogOut className="h-3.5 w-3.5" aria-hidden="true" />}
+              className={cn(expandido && 'flex-1 justify-start')}
+            >
+              Cerrar sesión
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              onClick={alternar}
+              aria-label={expandido ? 'Plegar la navegación' : 'Desplegar la navegación'}
+              aria-expanded={expandido}
+              icon={
+                expandido ? (
+                  <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
+                ) : (
+                  <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
+                )
+              }
+            />
+          </div>
         </div>
       </div>
     </aside>

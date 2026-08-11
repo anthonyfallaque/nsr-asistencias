@@ -8,6 +8,8 @@ interface AuthState {
   usuario: Usuario | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
+  /** Retira el aviso de cambio pendiente sin obligar a reiniciar sesión. */
+  marcarPasswordCambiada: () => void;
 }
 
 /**
@@ -34,6 +36,13 @@ export const useAuth = create<AuthState>()(
         setToken(null);
         set({ token: null, usuario: null });
       },
+
+      marcarPasswordCambiada: () =>
+        set((estado) =>
+          estado.usuario
+            ? { usuario: { ...estado.usuario, debe_cambiar_password: false } }
+            : {}
+        ),
     }),
     {
       name: 'nsr-auth',

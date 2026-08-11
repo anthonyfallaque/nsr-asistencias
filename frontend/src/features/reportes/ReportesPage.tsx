@@ -16,7 +16,7 @@ import {
   useToast,
 } from '@/shared/ui';
 import { queryKeys } from '@/shared/lib/queryKeys';
-import { fechaCorta, hoyEnLima } from '@/shared/lib/datetime';
+import { desdeFechaISO, fechaCorta, hoyEnLima } from '@/shared/lib/datetime';
 import { puede } from '@/config/navigation';
 import { useRol } from '@/features/auth/store';
 import { EstadoBadge } from '@/features/asistencias/components/EstadoBadge';
@@ -27,6 +27,21 @@ import { exportarExcel } from './exportarExcel';
 function inicioDeMes(): string {
   const hoy = hoyEnLima();
   return `${hoy.slice(0, 7)}-01`;
+}
+
+/**
+ * El servidor rechaza rangos mayores de 92 días.
+ *
+ * Un año escolar completo son ~800 alumnas × ~180 días lectivos: unas
+ * 144.000 filas en una sola respuesta, que agota la memoria de la instancia
+ * antes de llegar al navegador. Se avisa aquí para que el usuario lo vea al
+ * elegir las fechas, en lugar de descubrirlo con un error tras esperar.
+ */
+const MAX_DIAS = 92;
+
+function diasEntre(desde: string, hasta: string): number {
+  const ms = desdeFechaISO(hasta).getTime() - desdeFechaISO(desde).getTime();
+  return Math.round(ms / 86_400_000) + 1;
 }
 
 export default function ReportesPage() {
@@ -48,16 +63,25 @@ export default function ReportesPage() {
    */
   const filtros = { desde, hasta };
 
+  const rangoInvertido = desde > hasta;
+  const dias = diasEntre(desde, hasta);
+  const rangoDemasiadoLargo = !rangoInvertido && dias > MAX_DIAS;
+  const rangoInvalido = rangoInvertido || rangoDemasiadoLargo;
+
   const reporteQuery = useQuery({
     queryKey: queryKeys.reportes.rango(filtros),
     queryFn: () => reportesApi.rango(filtros),
     staleTime: 2 * 60_000,
+    // No se pide lo que el servidor va a rechazar: el usuario ya tiene el
+    // motivo bajo el campo de fecha.
+    enabled: !rangoInvalido,
   });
 
   const rankingQuery = useQuery({
     queryKey: queryKeys.reportes.ranking(desde, hasta),
     queryFn: () => reportesApi.ranking(desde, hasta),
     staleTime: 2 * 60_000,
+    enabled: !rangoInvalido,
   });
 
   const { filas, total } = useMemo(
@@ -66,7 +90,6 @@ export default function ReportesPage() {
   );
 
   const ranking = (rankingQuery.data ?? []).slice(0, 10);
-  const rangoInvalido = desde > hasta;
 
   async function descargar() {
     if (filas.length === 0) return;
@@ -118,7 +141,13 @@ export default function ReportesPage() {
             htmlFor="reporte-hasta"
             label="Hasta"
             className="flex-1"
-            error={rangoInvalido ? 'La fecha final es anterior a la inicial' : undefined}
+            error={
+              rangoInvertido
+                ? 'La fecha final es anterior a la inicial'
+                : rangoDemasiadoLargo
+                  ? `El periodo no puede superar ${MAX_DIAS} días (has elegido ${dias})`
+                  : undefined
+            }
           >
             <Input
               id="reporte-hasta"
@@ -131,6 +160,12 @@ export default function ReportesPage() {
               className="h-9"
             />
           </Field>
+
+          {!rangoInvalido && (
+            <p className="text-xs text-content-muted pb-2 shrink-0 tabular-nums">
+              {dias} {dias === 1 ? 'día' : 'días'}
+            </p>
+          )}
 
           <div className="flex gap-2 shrink-0">
             <Button
@@ -192,7 +227,17 @@ export default function ReportesPage() {
           }
         />
 
-        {reporteQuery.isError ? (
+        {rangoInvalido ? (
+          <EmptyState
+            icon={FileBarChart}
+            title="Ajusta el periodo"
+            description={
+              rangoInvertido
+                ? 'La fecha final debe ser posterior a la inicial.'
+                : `Elige un periodo de ${MAX_DIAS} días o menos para poder consultarlo.`
+            }
+          />
+        ) : reporteQuery.isError ? (
           <ErrorState
             title="No se pudo cargar el reporte"
             message={
