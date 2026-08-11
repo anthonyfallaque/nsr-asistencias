@@ -113,7 +113,11 @@ export async function sincronizarOffline(datos: {
           // El cliente sólo puede aportar la hora dentro de una ventana
           // razonable: 24 h hacia atrás y 5 min de holgura de reloj.
           if (!alumna.en_rango) {
-            return { indice, ok: false, error: 'fecha_fuera_de_rango' } satisfies ResultadoElemento;
+            return {
+              indice,
+              ok: false,
+              error: 'fecha_fuera_de_rango',
+            } satisfies ResultadoElemento;
           }
 
           const idCola = await repo.encolarOffline(cx, {

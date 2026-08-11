@@ -139,7 +139,14 @@ export async function crear(
     `INSERT INTO alumnas (nombres, apellidos, dni, seccion_id, qr_token, foto_url)
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING id, qr_token`,
-    [datos.nombres, datos.apellidos, datos.dni ?? null, datos.seccionId, datos.qrToken, datos.fotoUrl ?? null]
+    [
+      datos.nombres,
+      datos.apellidos,
+      datos.dni ?? null,
+      datos.seccionId,
+      datos.qrToken,
+      datos.fotoUrl ?? null,
+    ]
   );
 }
 
@@ -157,7 +164,14 @@ export async function crearSiNoExiste(
      VALUES ($1, $2, $3, $4, $5, $6)
      ON CONFLICT (dni) DO NOTHING
      RETURNING id`,
-    [datos.nombres, datos.apellidos, datos.dni ?? null, datos.seccionId, datos.qrToken, datos.fotoUrl ?? null]
+    [
+      datos.nombres,
+      datos.apellidos,
+      datos.dni ?? null,
+      datos.seccionId,
+      datos.qrToken,
+      datos.fotoUrl ?? null,
+    ]
   );
 }
 
@@ -223,6 +237,8 @@ export async function desactivar(
 
 /** Comprueba que la sección exista antes de dar de alta. */
 export async function existeSeccion(ex: Ejecutor, seccionId: number): Promise<boolean> {
-  const row = await fila<{ id: number }>(ex, `SELECT id FROM secciones WHERE id = $1`, [seccionId]);
+  const row = await fila<{ id: number }>(ex, `SELECT id FROM secciones WHERE id = $1`, [
+    seccionId,
+  ]);
   return row !== null;
 }

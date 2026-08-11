@@ -65,9 +65,7 @@ export default function LoginPage() {
             }}
           />
           <h1 className="text-lg font-semibold text-content">Asistencias</h1>
-          <p className="text-sm text-content-muted mt-0.5">
-            I. E. Nuestra Señora del Rosario
-          </p>
+          <p className="text-sm text-content-muted mt-0.5">I. E. Nuestra Señora del Rosario</p>
         </div>
 
         <div className="bg-surface border border-border rounded-lg shadow-sm p-6">
@@ -79,6 +77,10 @@ export default function LoginPage() {
                 inputMode="email"
                 autoComplete="username"
                 autoCapitalize="none"
+                // El único contenido de esta pantalla es este formulario, así
+                // que enfocarlo no desorienta a nadie y ahorra un toque diario
+                // a quien entra cada mañana desde el móvil.
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
                 required
                 value={email}
@@ -124,7 +126,10 @@ export default function LoginPage() {
                 role="alert"
                 className="flex items-start gap-2 bg-danger-soft border border-danger-border rounded-md px-3 py-2.5"
               >
-                <AlertCircle className="h-4 w-4 text-danger shrink-0 mt-px" aria-hidden="true" />
+                <AlertCircle
+                  className="h-4 w-4 text-danger shrink-0 mt-px"
+                  aria-hidden="true"
+                />
                 <p className="text-sm text-danger">{error}</p>
               </div>
             )}

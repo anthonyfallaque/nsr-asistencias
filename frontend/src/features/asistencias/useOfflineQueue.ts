@@ -47,17 +47,6 @@ export function useOfflineQueue() {
   const [sincronizando, setSincronizando] = useState(false);
   const sincronizandoRef = useRef(false);
 
-  useEffect(() => {
-    const conectar = () => setEnLinea(true);
-    const desconectar = () => setEnLinea(false);
-    window.addEventListener('online', conectar);
-    window.addEventListener('offline', desconectar);
-    return () => {
-      window.removeEventListener('online', conectar);
-      window.removeEventListener('offline', desconectar);
-    };
-  }, []);
-
   const encolar = useCallback((escaneo: EscaneoOffline) => {
     setCola((actual) => {
       if (actual.length >= MAX_COLA) return actual;
@@ -83,9 +72,7 @@ export function useOfflineQueue() {
       const { resultados } = await asistenciasApi.sincronizarOffline(pendientes);
 
       // Se conserva solo lo que el servidor no aceptó, por índice.
-      const rechazados = new Set(
-        resultados.filter((r) => !r.ok).map((r) => r.indice)
-      );
+      const rechazados = new Set(resultados.filter((r) => !r.ok).map((r) => r.indice));
       const restantes = pendientes.filter((_, i) => rechazados.has(i));
 
       setCola(restantes);
@@ -104,13 +91,30 @@ export function useOfflineQueue() {
     }
   }, []);
 
-  // Al recuperar la conexión, vaciar lo acumulado.
+  /**
+   * La sincronización se dispara desde el propio evento de reconexión, no
+   * desde un efecto que observe `enLinea`.
+   *
+   * Enviar la cola es una reacción a un suceso del navegador, no un estado
+   * derivado del render. Colgarlo de un efecto obligaba a silenciar dos
+   * reglas de hooks y ataba el envío al ciclo de renderizado: si el
+   * componente se re-renderizaba por otro motivo mientras volvía la red, la
+   * condición podía evaluarse más de una vez.
+   */
   useEffect(() => {
-    if (enLinea && cola.length > 0) void sincronizar();
-    // Depende solo de `enLinea` a propósito: incluir `cola` dispararía una
-    // sincronización tras cada escaneo encolado.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enLinea, sincronizar]);
+    const conectar = () => {
+      setEnLinea(true);
+      void sincronizar();
+    };
+    const desconectar = () => setEnLinea(false);
+
+    window.addEventListener('online', conectar);
+    window.addEventListener('offline', desconectar);
+    return () => {
+      window.removeEventListener('online', conectar);
+      window.removeEventListener('offline', desconectar);
+    };
+  }, [sincronizar]);
 
   return {
     encolar,

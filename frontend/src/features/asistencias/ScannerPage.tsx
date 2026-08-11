@@ -27,7 +27,9 @@ function PanelResultado({ resultado }: { resultado: Resultado }) {
         </div>
         <div className="min-w-0">
           <p className="text-base font-medium text-content">Guardado sin conexión</p>
-          <p className="text-sm text-content-muted">Se enviará automáticamente al reconectar.</p>
+          <p className="text-sm text-content-muted">
+            Se enviará automáticamente al reconectar.
+          </p>
         </div>
       </div>
     );
@@ -149,7 +151,9 @@ export default function ScannerPage() {
       <div
         className={cn(
           'flex items-center justify-between gap-3 rounded-lg border px-3 py-2',
-          enLinea ? 'bg-success-soft border-success-border' : 'bg-warning-soft border-warning-border'
+          enLinea
+            ? 'bg-success-soft border-success-border'
+            : 'bg-warning-soft border-warning-border'
         )}
       >
         <span
@@ -174,7 +178,9 @@ export default function ScannerPage() {
             loading={sincronizando}
             disabled={!enLinea}
           >
-            {sincronizando ? 'Enviando…' : `Enviar ${pendientes} pendiente${pendientes === 1 ? '' : 's'}`}
+            {sincronizando
+              ? 'Enviando…'
+              : `Enviar ${pendientes} pendiente${pendientes === 1 ? '' : 's'}`}
           </Button>
         )}
       </div>
@@ -207,7 +213,9 @@ export default function ScannerPage() {
         <p className="text-3xl font-semibold text-content tabular-nums leading-none">
           {horaConSegundos(ahora)}
         </p>
-        <p className="text-sm text-content-muted mt-1.5 capitalize">{fechaLarga(hoyEnLima())}</p>
+        <p className="text-sm text-content-muted mt-1.5 capitalize">
+          {fechaLarga(hoyEnLima())}
+        </p>
       </div>
     </div>
   );

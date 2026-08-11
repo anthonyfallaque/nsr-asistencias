@@ -55,7 +55,13 @@ export async function listar(ex: Ejecutor = pool): Promise<Usuario[]> {
 
 /** Devuelve null si el rol indicado no existe (el SELECT no da filas). */
 export async function crear(
-  datos: { email: string; passwordHash: string; nombre: string; rol: Rol; debeCambiarPassword: boolean },
+  datos: {
+    email: string;
+    passwordHash: string;
+    nombre: string;
+    rol: Rol;
+    debeCambiarPassword: boolean;
+  },
   ex: Ejecutor = pool
 ): Promise<Usuario | null> {
   return fila<Usuario>(
@@ -96,7 +102,8 @@ export async function actualizar(
   if (campos.passwordHash !== undefined) push('password_hash = $n', campos.passwordHash);
   if (campos.debeCambiarPassword !== undefined)
     push('debe_cambiar_password = $n', campos.debeCambiarPassword);
-  if (campos.rol !== undefined) push('rol_id = (SELECT id FROM roles WHERE nombre = $n)', campos.rol);
+  if (campos.rol !== undefined)
+    push('rol_id = (SELECT id FROM roles WHERE nombre = $n)', campos.rol);
 
   if (sets.length === 0) return buscarPorId(id, ex);
 

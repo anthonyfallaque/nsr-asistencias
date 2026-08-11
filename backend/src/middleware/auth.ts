@@ -54,7 +54,11 @@ async function resolverUsuario(id: string): Promise<Usuario | null> {
   return usuario;
 }
 
-export async function requireAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
+export async function requireAuth(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
     throw errNoAutenticado('Token requerido');

@@ -39,9 +39,7 @@ export const useAuth = create<AuthState>()(
 
       marcarPasswordCambiada: () =>
         set((estado) =>
-          estado.usuario
-            ? { usuario: { ...estado.usuario, debe_cambiar_password: false } }
-            : {}
+          estado.usuario ? { usuario: { ...estado.usuario, debe_cambiar_password: false } } : {}
         ),
     }),
     {

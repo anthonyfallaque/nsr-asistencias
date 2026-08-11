@@ -49,13 +49,7 @@ export interface SidebarProps {
  * El estado plegado persiste en localStorage: en pantallas pequeñas el
  * usuario lo pliega una vez y no debería tener que repetirlo cada mañana.
  */
-export function Sidebar({
-  rol,
-  nombre,
-  iniciales,
-  onLogout,
-  onCambiarPassword,
-}: SidebarProps) {
+export function Sidebar({ rol, nombre, iniciales, onLogout, onCambiarPassword }: SidebarProps) {
   const [expandido, setExpandido] = useState(
     () => localStorage.getItem('nsr-sidebar') !== 'collapsed'
   );
@@ -142,7 +136,9 @@ export function Sidebar({
           </div>
           {expandido && (
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-content truncate leading-tight">{nombre}</p>
+              <p className="text-sm font-medium text-content truncate leading-tight">
+                {nombre}
+              </p>
               <p className="text-2xs text-content-muted truncate">
                 {rol ? ROL_LABEL[rol] : ''}
               </p>
@@ -163,7 +159,9 @@ export function Sidebar({
             Cambiar contraseña
           </Button>
 
-          <div className={cn('flex gap-1', expandido ? 'items-center' : 'flex-col items-center')}>
+          <div
+            className={cn('flex gap-1', expandido ? 'items-center' : 'flex-col items-center')}
+          >
             <Button
               variant="ghost"
               size="sm"

@@ -31,13 +31,9 @@ export function PageHeader({ title, description, actions, className }: PageHeade
     >
       <div className="min-w-0">
         <h1 className="text-xl font-semibold text-content">{title}</h1>
-        {description && (
-          <div className="text-sm text-content-muted mt-1">{description}</div>
-        )}
+        {description && <div className="text-sm text-content-muted mt-1">{description}</div>}
       </div>
-      {actions && (
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">{actions}</div>
-      )}
+      {actions && <div className="flex items-center gap-2 shrink-0 flex-wrap">{actions}</div>}
     </div>
   );
 }

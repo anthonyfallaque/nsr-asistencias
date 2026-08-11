@@ -6,9 +6,10 @@ export const pool = new Pool({
   max: 10,
   idleTimeoutMillis: 30_000,
   connectionTimeoutMillis: 5_000,
-  ssl: env.DATABASE_URL.includes('supabase') || env.DB_SSL === 'true'
-    ? { rejectUnauthorized: false }
-    : false,
+  ssl:
+    env.DATABASE_URL.includes('supabase') || env.DB_SSL === 'true'
+      ? { rejectUnauthorized: false }
+      : false,
 });
 
 pool.on('error', (err) => {

@@ -12,14 +12,12 @@ import { Spinner } from './Spinner';
  * interfaz improvisada. El feedback aquí es un cambio de fondo inmediato.
  */
 const VARIANTS = {
-  primary:
-    'bg-accent text-accent-fg hover:bg-accent-hover active:bg-accent-active shadow-xs',
+  primary: 'bg-accent text-accent-fg hover:bg-accent-hover active:bg-accent-active shadow-xs',
   secondary:
     'bg-surface text-content border border-border hover:bg-surface-hover active:bg-surface-active shadow-xs',
   ghost:
     'text-content-secondary hover:bg-surface-hover hover:text-content active:bg-surface-active',
-  danger:
-    'bg-danger text-white hover:brightness-110 active:brightness-95 shadow-xs',
+  danger: 'bg-danger text-white hover:brightness-110 active:brightness-95 shadow-xs',
   'danger-subtle':
     'bg-danger-soft text-danger border border-danger-border hover:brightness-[0.98]',
 } as const;
@@ -76,7 +74,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       disabled={isDisabled}
-      aria-busy={loading || undefined}
+      // Ternario y no `loading || undefined`: se quiere omitir el atributo
+      // cuando es falso, no emitir aria-busy="false".
+      aria-busy={loading ? true : undefined}
       className={cn(
         'inline-flex items-center justify-center font-medium whitespace-nowrap',
         'transition-colors duration-fast ease-out',
@@ -90,11 +90,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       )}
       {...props}
     >
-      {loading ? (
-        <Spinner size={size === 'lg' ? 'md' : 'sm'} label={null} />
-      ) : (
-        icon
-      )}
+      {loading ? <Spinner size={size === 'lg' ? 'md' : 'sm'} label={null} /> : icon}
       {!iconOnly && children}
       {!loading && iconRight}
     </button>

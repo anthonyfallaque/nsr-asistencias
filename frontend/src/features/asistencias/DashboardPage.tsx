@@ -46,7 +46,10 @@ export default function DashboardPage() {
     staleTime: 5 * 60_000,
   });
 
-  const secciones = resumenQuery.data ?? [];
+  // Se memoiza sobre `resumenQuery.data` y no sobre una constante derivada:
+  // `data ?? []` produce un array nuevo en cada render, de modo que el
+  // useMemo de abajo nunca acertaría y recalcularía siempre.
+  const secciones = useMemo(() => resumenQuery.data ?? [], [resumenQuery.data]);
 
   const totales = useMemo(
     () =>
@@ -127,7 +130,9 @@ export default function DashboardPage() {
         <Card>
           <ErrorState
             title="No se pudo cargar la asistencia"
-            message={resumenQuery.error instanceof Error ? resumenQuery.error.message : undefined}
+            message={
+              resumenQuery.error instanceof Error ? resumenQuery.error.message : undefined
+            }
             onRetry={() => void resumenQuery.refetch()}
           />
         </Card>

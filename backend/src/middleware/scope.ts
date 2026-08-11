@@ -11,7 +11,11 @@ import type { AmbitoUsuario } from '../types/index.js';
  * no puede leer el DNI, la foto ni el historial de las alumnas de otras
  * secciones, ni modificar su asistencia cambiando un id en la petición.
  */
-export async function scopeSecciones(req: Request, _res: Response, next: NextFunction): Promise<void> {
+export async function scopeSecciones(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): Promise<void> {
   if (!req.usuario) throw errNoAutenticado();
 
   req.ambito = await resolverAmbito(req.usuario.rol, req.usuario.id);

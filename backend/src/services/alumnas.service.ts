@@ -104,7 +104,10 @@ export async function actualizar(datos: {
     const antes = await repo.buscarPorId(datos.id, datos.ambito, cx);
     if (!antes) throw errNoEncontrado('Alumna no encontrada');
 
-    if (datos.campos.seccion_id !== undefined && !(await repo.existeSeccion(cx, datos.campos.seccion_id))) {
+    if (
+      datos.campos.seccion_id !== undefined &&
+      !(await repo.existeSeccion(cx, datos.campos.seccion_id))
+    ) {
       throw errNoProcesable('La sección indicada no existe');
     }
 

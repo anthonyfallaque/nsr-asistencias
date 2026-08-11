@@ -24,8 +24,16 @@ const TONE_CONFIG: Record<
   ToastTone,
   { icon: typeof CheckCircle2; className: string; iconClass: string }
 > = {
-  success: { icon: CheckCircle2, className: 'border-success-border', iconClass: 'text-success' },
-  warning: { icon: AlertTriangle, className: 'border-warning-border', iconClass: 'text-warning' },
+  success: {
+    icon: CheckCircle2,
+    className: 'border-success-border',
+    iconClass: 'text-success',
+  },
+  warning: {
+    icon: AlertTriangle,
+    className: 'border-warning-border',
+    iconClass: 'text-warning',
+  },
   danger: { icon: XCircle, className: 'border-danger-border', iconClass: 'text-danger' },
   info: { icon: Info, className: 'border-info-border', iconClass: 'text-info' },
 };

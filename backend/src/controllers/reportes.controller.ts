@@ -1,7 +1,14 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { ambitoDe } from '../middleware/scope.js';
-import { fechaIso, idEntero, idUuid, paginacion, paramsDe, queryDe } from '../middleware/validate.js';
+import {
+  fechaIso,
+  idEntero,
+  idUuid,
+  paginacion,
+  paramsDe,
+  queryDe,
+} from '../middleware/validate.js';
 import { hoyEnLima, sumarDias } from '../services/horario.service.js';
 import * as servicio from '../services/reportes.service.js';
 
@@ -20,8 +27,18 @@ export const RangoQuerySchema = z.object({
 export const AlumnaParamsSchema = z.object({ id: idUuid });
 
 export const AlumnaQuerySchema = z.object({
-  mes: z.coerce.number().int().min(1).max(12).default(() => Number(hoyEnLima().slice(5, 7))),
-  anio: z.coerce.number().int().min(2000).max(2100).default(() => Number(hoyEnLima().slice(0, 4))),
+  mes: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(12)
+    .default(() => Number(hoyEnLima().slice(5, 7))),
+  anio: z.coerce
+    .number()
+    .int()
+    .min(2000)
+    .max(2100)
+    .default(() => Number(hoyEnLima().slice(0, 4))),
 });
 
 export const RankingQuerySchema = z.object({
@@ -56,7 +73,9 @@ export async function estadisticasAlumna(req: Request, res: Response): Promise<v
   const { id } = paramsDe<z.infer<typeof AlumnaParamsSchema>>(req);
   const { mes, anio } = queryDe<z.infer<typeof AlumnaQuerySchema>>(req);
 
-  res.json(await servicio.estadisticasAlumna({ alumnaId: id, mes, anio, ambito: ambitoDe(req) }));
+  res.json(
+    await servicio.estadisticasAlumna({ alumnaId: id, mes, anio, ambito: ambitoDe(req) })
+  );
 }
 
 export async function rankingTardanzas(req: Request, res: Response): Promise<void> {

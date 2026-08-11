@@ -19,10 +19,12 @@ app.set('trust proxy', 1);
 
 // ── Seguridad ────────────────────────────────────────────────
 app.use(helmet());
-app.use(cors({
-  origin: env.FRONTEND_URL,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 
 // ── Health check ─────────────────────────────────────────────
 // Va antes del rate limit: los monitores externos y el health check

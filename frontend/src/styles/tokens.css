@@ -16,9 +16,9 @@
 
 :root {
   /* ── Superficies ──────────────────────────────────────────────────────── */
-  --color-canvas: #fbfbfc;          /* fondo de página */
-  --color-surface: #ffffff;         /* tarjetas, paneles, modales */
-  --color-surface-sunken: #f6f7f9;  /* cabeceras de tabla, zonas hundidas */
+  --color-canvas: #fbfbfc; /* fondo de página */
+  --color-surface: #ffffff; /* tarjetas, paneles, modales */
+  --color-surface-sunken: #f6f7f9; /* cabeceras de tabla, zonas hundidas */
   --color-surface-hover: #f3f4f6;
   --color-surface-active: #eceef1;
 
@@ -34,10 +34,10 @@
      `subtle` se queda en 3.8:1: cumple el 3:1 exigido a elementos de
      interfaz no textuales, así que solo debe usarse en iconos decorativos y
      controles deshabilitados — nunca en texto que haya que leer. */
-  --color-text: #14171a;            /* 17.4:1 — titulares y datos */
-  --color-text-secondary: #545d6b;  /*  6.4:1 — cuerpo */
-  --color-text-muted: #667085;      /*  4.8:1 — etiquetas, metadatos, placeholders */
-  --color-text-subtle: #79818f;     /*  3.8:1 — solo iconos y deshabilitado */
+  --color-text: #14171a; /* 17.4:1 — titulares y datos */
+  --color-text-secondary: #545d6b; /*  6.4:1 — cuerpo */
+  --color-text-muted: #667085; /*  4.8:1 — etiquetas, metadatos, placeholders */
+  --color-text-subtle: #79818f; /*  3.8:1 — solo iconos y deshabilitado */
   --color-text-inverse: #ffffff;
 
   /* ── Acento institucional (acción) ────────────────────────────────────── */
@@ -45,7 +45,7 @@
   --color-accent: #002147;
   --color-accent-hover: #00305f;
   --color-accent-active: #001732;
-  --color-accent-soft: #eef2f7;     /* fondo de item de nav activo */
+  --color-accent-soft: #eef2f7; /* fondo de item de nav activo */
   --color-accent-soft-hover: #e4eaf2;
   --color-accent-border: #c6d3e2;
   --color-accent-fg: #ffffff;
@@ -76,36 +76,37 @@
 
   /* ── Tipografía ───────────────────────────────────────────────────────── */
   /* Inter: alto de x elevado y cifras tabulares — diseñada para UI densa. */
-  --font-sans: 'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans:
+    'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Escala de 14px base — estándar en dashboards densos (Linear, Stripe). */
-  --text-2xs: 0.6875rem;   /* 11px — micro-etiquetas */
-  --text-xs: 0.75rem;      /* 12px — etiquetas, captions */
-  --text-sm: 0.8125rem;    /* 13px — celdas de tabla, texto secundario */
-  --text-base: 0.875rem;   /* 14px — texto por defecto de la interfaz */
-  --text-md: 1rem;         /* 16px — énfasis */
-  --text-lg: 1.125rem;     /* 18px — títulos de sección */
-  --text-xl: 1.375rem;     /* 22px — título de página */
-  --text-2xl: 1.75rem;     /* 28px — cifras KPI */
-  --text-3xl: 2.25rem;     /* 36px — cifra protagonista */
+  --text-2xs: 0.6875rem; /* 11px — micro-etiquetas */
+  --text-xs: 0.75rem; /* 12px — etiquetas, captions */
+  --text-sm: 0.8125rem; /* 13px — celdas de tabla, texto secundario */
+  --text-base: 0.875rem; /* 14px — texto por defecto de la interfaz */
+  --text-md: 1rem; /* 16px — énfasis */
+  --text-lg: 1.125rem; /* 18px — títulos de sección */
+  --text-xl: 1.375rem; /* 22px — título de página */
+  --text-2xl: 1.75rem; /* 28px — cifras KPI */
+  --text-3xl: 2.25rem; /* 36px — cifra protagonista */
 
   --leading-tight: 1.25;
   --leading-snug: 1.4;
   --leading-normal: 1.55;
 
-  --tracking-tight: -0.011em;   /* compensa el ensanchado óptico en display */
+  --tracking-tight: -0.011em; /* compensa el ensanchado óptico en display */
   --tracking-normal: 0;
-  --tracking-wide: 0.04em;      /* etiquetas en versalitas */
+  --tracking-wide: 0.04em; /* etiquetas en versalitas */
 
   /* ── Radios ───────────────────────────────────────────────────────────── */
   /* Contenidos a propósito: el exceso de redondeo abarata el conjunto.    */
   --radius-xs: 3px;
   --radius-sm: 4px;
-  --radius-md: 6px;    /* botones, inputs — el valor por defecto */
-  --radius-lg: 8px;    /* tarjetas, paneles */
-  --radius-xl: 12px;   /* modales */
+  --radius-md: 6px; /* botones, inputs — el valor por defecto */
+  --radius-lg: 8px; /* tarjetas, paneles */
+  --radius-xl: 12px; /* modales */
   --radius-full: 9999px;
 
   /* ── Sombras ──────────────────────────────────────────────────────────── */

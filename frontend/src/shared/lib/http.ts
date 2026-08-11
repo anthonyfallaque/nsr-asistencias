@@ -111,9 +111,12 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string; mensaje?: string; codigo?: string; detalles?: unknown }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      error?: string;
+      mensaje?: string;
+      codigo?: string;
+      detalles?: unknown;
+    } | null;
 
     throw new ApiError(
       response.status,

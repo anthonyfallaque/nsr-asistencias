@@ -34,7 +34,11 @@ export function validate(esquemas: Esquemas) {
     if (esquemas.body) {
       const r = esquemas.body.safeParse(req.body);
       if (!r.success) return next(errorDeZod('body', r.error));
-      req.body = r.data;
+      // `safeParse` devuelve `any` por el genérico de ZodTypeAny. Se pasa
+      // por `unknown` para no propagar ese `any` al resto del pipeline:
+      // quien lo consume lo recupera tipado vía `bodyDe<T>()`.
+      const validado: unknown = r.data;
+      req.body = validado;
     }
 
     next();
@@ -42,7 +46,9 @@ export function validate(esquemas: Esquemas) {
 }
 
 function errorDeZod(origen: 'params' | 'query' | 'body', error: z.ZodError): AppError {
-  const donde = { params: 'la ruta', query: 'los parámetros de consulta', body: 'el cuerpo' }[origen];
+  const donde = { params: 'la ruta', query: 'los parámetros de consulta', body: 'el cuerpo' }[
+    origen
+  ];
   return new AppError(400, 'DATOS_INVALIDOS', `Datos inválidos en ${donde}.`, error.flatten());
 }
 

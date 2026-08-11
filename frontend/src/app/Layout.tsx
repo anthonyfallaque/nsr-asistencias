@@ -87,7 +87,12 @@ export function Layout() {
                     Cámbiala para proteger el acceso a los datos de las alumnas.
                   </p>
                 </div>
-                <Button variant="primary" size="md" onClick={password.open} className="shrink-0">
+                <Button
+                  variant="primary"
+                  size="md"
+                  onClick={password.open}
+                  className="shrink-0"
+                >
                   Cambiar ahora
                 </Button>
               </div>

@@ -19,7 +19,13 @@ interface Errores {
  * Con las credenciales del seed publicadas en el repositorio, eso convertía
  * una contraseña conocida en una contraseña permanente.
  */
-export function CambiarPasswordModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CambiarPasswordModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const toast = useToast();
   const marcarCambiada = useAuth((s) => s.marcarPasswordCambiada);
 
@@ -110,7 +116,6 @@ export function CambiarPasswordModal({ open, onClose }: { open: boolean; onClose
             onChange={(e) => setActual(e.target.value)}
             invalid={Boolean(errores.actual)}
             aria-describedby={errores.actual ? `${idActual}-error` : undefined}
-            autoFocus
           />
         </Field>
 

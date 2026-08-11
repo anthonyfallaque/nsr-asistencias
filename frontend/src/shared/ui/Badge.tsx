@@ -44,10 +44,7 @@ export function Badge({
       {...props}
     >
       {dot && (
-        <span
-          className="h-1.5 w-1.5 rounded-full bg-current shrink-0"
-          aria-hidden="true"
-        />
+        <span className="h-1.5 w-1.5 rounded-full bg-current shrink-0" aria-hidden="true" />
       )}
       {icon}
       {children}

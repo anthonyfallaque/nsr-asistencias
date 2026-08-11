@@ -33,8 +33,11 @@ export async function crear(datos: {
   creadoPor: string;
   ip?: string | null;
 }): Promise<{ usuario: Usuario; password_provisional?: string }> {
-  const provisional = datos.password ? undefined : generarPasswordProvisional();
-  const password = datos.password ?? (provisional as string);
+  // Se calcula primero la contraseña efectiva y de ahí se deriva si fue
+  // provisional. Al revés obligaba a una aserción para convencer a
+  // TypeScript de que `provisional` existía cuando `password` no.
+  const password = datos.password ?? generarPasswordProvisional();
+  const provisional = datos.password ? undefined : password;
 
   return withTx(async (cx) => {
     const usuario = await repo.crear(
@@ -57,7 +60,12 @@ export async function crear(datos: {
       accion: 'usuario_crear',
       ip: datos.ip,
       antes: null,
-      despues: { id: usuario.id, email: usuario.email, nombre: usuario.nombre, rol: usuario.rol },
+      despues: {
+        id: usuario.id,
+        email: usuario.email,
+        nombre: usuario.nombre,
+        rol: usuario.rol,
+      },
     });
 
     return { usuario, password_provisional: provisional };

@@ -189,7 +189,10 @@ export default function ReportesPage() {
           />
           <ul className="divide-y divide-border">
             {ranking.map((fila, indice) => (
-              <li key={fila.alumna_id ?? indice} className="flex items-center gap-3 px-4 py-2.5">
+              <li
+                key={fila.alumna_id ?? indice}
+                className="flex items-center gap-3 px-4 py-2.5"
+              >
                 <span className="text-xs font-medium text-content-muted tabular-nums w-4 shrink-0">
                   {indice + 1}
                 </span>
@@ -265,19 +268,34 @@ export default function ReportesPage() {
               </caption>
               <thead>
                 <tr className="bg-surface-sunken border-b border-border">
-                  <th scope="col" className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2">
+                  <th
+                    scope="col"
+                    className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2"
+                  >
                     Alumna
                   </th>
-                  <th scope="col" className="hidden sm:table-cell text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2">
+                  <th
+                    scope="col"
+                    className="hidden sm:table-cell text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2"
+                  >
                     Sección
                   </th>
-                  <th scope="col" className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2">
+                  <th
+                    scope="col"
+                    className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2"
+                  >
                     Fecha
                   </th>
-                  <th scope="col" className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2">
+                  <th
+                    scope="col"
+                    className="text-left font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2"
+                  >
                     Estado
                   </th>
-                  <th scope="col" className="hidden sm:table-cell text-right font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2">
+                  <th
+                    scope="col"
+                    className="hidden sm:table-cell text-right font-medium text-2xs uppercase tracking-wide text-content-muted px-4 py-2"
+                  >
                     Hora
                   </th>
                 </tr>

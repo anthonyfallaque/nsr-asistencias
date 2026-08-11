@@ -40,8 +40,8 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="max-w-md text-center">
           <h1 className="text-lg font-semibold text-content">Algo se rompió</h1>
           <p className="text-base text-content-secondary mt-2">
-            La aplicación encontró un error inesperado. Puedes recargar para volver a
-            empezar; tus datos no se han perdido.
+            La aplicación encontró un error inesperado. Puedes recargar para volver a empezar;
+            tus datos no se han perdido.
           </p>
 
           {import.meta.env.DEV && (

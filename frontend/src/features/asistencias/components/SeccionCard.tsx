@@ -99,7 +99,10 @@ export function SeccionCard({ resumen, fecha }: { resumen: ResumenSeccion; fecha
         <div className="hidden sm:flex items-center gap-3 shrink-0">
           <div className="w-28 h-1.5 rounded-full bg-surface-sunken overflow-hidden">
             <div
-              className={cn('h-full rounded-full transition-[width] duration-slow', BARRA_TONE[tone])}
+              className={cn(
+                'h-full rounded-full transition-[width] duration-slow',
+                BARRA_TONE[tone]
+              )}
               style={{ width: `${pct}%` }}
             />
           </div>

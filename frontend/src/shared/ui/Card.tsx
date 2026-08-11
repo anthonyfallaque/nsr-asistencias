@@ -12,10 +12,7 @@ import { cn } from '@/shared/lib/cn';
  */
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn('bg-surface border border-border rounded-lg', className)}
-      {...props}
-    />
+    <div className={cn('bg-surface border border-border rounded-lg', className)} {...props} />
   );
 }
 
@@ -45,9 +42,7 @@ export function CardHeader({
     >
       <div className="min-w-0">
         <h2 className="text-base font-semibold text-content truncate">{title}</h2>
-        {description && (
-          <p className="text-xs text-content-muted mt-0.5">{description}</p>
-        )}
+        {description && <p className="text-xs text-content-muted mt-0.5">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>

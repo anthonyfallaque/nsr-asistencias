@@ -59,9 +59,7 @@ export function TendenciaChart({ datos }: { datos: TendenciaDia[] }) {
     );
   }
 
-  const promedio = Math.round(
-    lectivos.reduce((suma, d) => suma + d.pct, 0) / lectivos.length
-  );
+  const promedio = Math.round(lectivos.reduce((suma, d) => suma + d.pct, 0) / lectivos.length);
 
   const detalle = activo !== null ? dias[activo] : undefined;
 

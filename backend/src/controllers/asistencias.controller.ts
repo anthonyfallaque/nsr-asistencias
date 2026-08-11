@@ -112,7 +112,8 @@ export async function justificar(req: Request, res: Response): Promise<void> {
 }
 
 export async function marcarManual(req: Request, res: Response): Promise<void> {
-  const { alumna_id, fecha, estado, justificacion } = bodyDe<z.infer<typeof MarcarManualSchema>>(req);
+  const { alumna_id, fecha, estado, justificacion } =
+    bodyDe<z.infer<typeof MarcarManualSchema>>(req);
 
   const asistencia = await servicio.marcarManual({
     alumnaId: alumna_id,

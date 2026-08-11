@@ -1,7 +1,14 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import { ambitoDe } from '../middleware/scope.js';
-import { bodyDe, idEntero, idUuid, paginacion, paramsDe, queryDe } from '../middleware/validate.js';
+import {
+  bodyDe,
+  idEntero,
+  idUuid,
+  paginacion,
+  paramsDe,
+  queryDe,
+} from '../middleware/validate.js';
 import * as servicio from '../services/alumnas.service.js';
 
 // ── Esquemas ─────────────────────────────────────────────────
@@ -9,7 +16,10 @@ import * as servicio from '../services/alumnas.service.js';
 export const AlumnaSchema = z.object({
   nombres: z.string().trim().min(2).max(100),
   apellidos: z.string().trim().min(2).max(100),
-  dni: z.string().regex(/^\d{8}$/, 'El DNI debe tener 8 dígitos').optional(),
+  dni: z
+    .string()
+    .regex(/^\d{8}$/, 'El DNI debe tener 8 dígitos')
+    .optional(),
   seccion_id: z.number().int().positive(),
   foto_url: z.string().url().max(500).optional(),
 });

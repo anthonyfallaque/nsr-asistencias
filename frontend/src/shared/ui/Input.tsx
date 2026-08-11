@@ -34,7 +34,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       <input
         ref={ref}
         disabled={disabled}
-        aria-invalid={invalid || undefined}
+        aria-invalid={invalid ? true : undefined}
         className={cn(
           'w-full h-8 bg-surface text-content text-base rounded-md',
           'border border-border',
@@ -46,15 +46,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           'disabled:bg-surface-sunken disabled:text-content-subtle disabled:cursor-not-allowed',
           icon ? 'pl-8' : 'pl-2.5',
           addonRight ? 'pr-9' : 'pr-2.5',
-          invalid && 'border-danger focus:border-danger focus:shadow-[0_0_0_3px_var(--color-danger-soft)]',
+          invalid &&
+            'border-danger focus:border-danger focus:shadow-[0_0_0_3px_var(--color-danger-soft)]',
           className
         )}
         {...props}
       />
 
-      {addonRight && (
-        <span className="absolute right-1 flex items-center">{addonRight}</span>
-      )}
+      {addonRight && <span className="absolute right-1 flex items-center">{addonRight}</span>}
     </div>
   );
 });

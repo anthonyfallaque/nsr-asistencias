@@ -1,8 +1,13 @@
 import { Badge } from '@/shared/ui';
-import { ESTADOS, normalizarEstado, type EstadoAsistencia } from '@/shared/domain/asistencia';
+import { ESTADOS, normalizarEstado } from '@/shared/domain/asistencia';
 
 export interface EstadoBadgeProps {
-  estado: EstadoAsistencia | string | null | undefined;
+  /**
+   * Se acepta `string` suelto además del tipo del dominio porque la API
+   * devuelve `null` para los días sin registro y, en reportes antiguos,
+   * valores que ya no están en el enum. `normalizarEstado` los reconduce.
+   */
+  estado: string | null | undefined;
   /** Añade el icono del estado. Útil donde el color solo no basta. */
   conIcono?: boolean;
 }

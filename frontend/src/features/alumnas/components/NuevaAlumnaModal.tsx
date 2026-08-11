@@ -122,7 +122,6 @@ export function NuevaAlumnaModal({ open, onClose }: { open: boolean; onClose: ()
               placeholder="García López"
               invalid={Boolean(errores.apellidos)}
               aria-describedby={errores.apellidos ? `${idApellidos}-error` : undefined}
-              autoFocus
             />
           </Field>
 
@@ -139,12 +138,7 @@ export function NuevaAlumnaModal({ open, onClose }: { open: boolean; onClose: ()
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field
-            htmlFor={idDni}
-            label="DNI"
-            hint="Opcional, 8 dígitos"
-            error={errores.dni}
-          >
+          <Field htmlFor={idDni} label="DNI" hint="Opcional, 8 dígitos" error={errores.dni}>
             <Input
               id={idDni}
               value={dni}
@@ -179,7 +173,10 @@ export function NuevaAlumnaModal({ open, onClose }: { open: boolean; onClose: ()
         </div>
 
         {errorGeneral && (
-          <p role="alert" className="text-sm text-danger bg-danger-soft border border-danger-border rounded-md px-3 py-2">
+          <p
+            role="alert"
+            className="text-sm text-danger bg-danger-soft border border-danger-border rounded-md px-3 py-2"
+          >
             {errorGeneral}
           </p>
         )}

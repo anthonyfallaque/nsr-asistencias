@@ -71,11 +71,7 @@ export function CarnetsModal({
               className="carnet flex flex-col items-center gap-1.5 border border-border rounded-md p-2.5 bg-surface break-inside-avoid"
             >
               {qr ? (
-                <img
-                  src={qr.qr_image}
-                  alt=""
-                  className="w-full aspect-square object-contain"
-                />
+                <img src={qr.qr_image} alt="" className="w-full aspect-square object-contain" />
               ) : (
                 <Skeleton className="w-full aspect-square rounded-sm" />
               )}

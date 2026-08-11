@@ -31,7 +31,10 @@
     font-variant-numeric: tabular-nums;
   }
 
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     @apply font-semibold text-content;
     text-wrap: balance;
     margin: 0;

@@ -24,7 +24,10 @@ const EntornoSchema = z.object({
     .min(32, 'JWT_SECRET debe tener al menos 32 caracteres (openssl rand -base64 64)'),
   JWT_EXPIRES_IN: z.string().default('8h'),
 
-  FRONTEND_URL: z.string().url('FRONTEND_URL debe ser una URL válida').default('http://localhost:5173'),
+  FRONTEND_URL: z
+    .string()
+    .url('FRONTEND_URL debe ser una URL válida')
+    .default('http://localhost:5173'),
 
   TZ: z.string().default(ZONA_HORARIA),
   DB_SSL: z.enum(['true', 'false']).optional(),

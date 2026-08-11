@@ -80,7 +80,12 @@ export const asistenciasApi = {
   justificar: (alumna_id: string, fecha: string, justificacion: string) =>
     http.post<{ ok: boolean }>('/asistencias/justificar', { alumna_id, fecha, justificacion }),
 
-  marcarManual: (alumna_id: string, fecha: string, estado: EstadoAsistencia, justificacion?: string) =>
+  marcarManual: (
+    alumna_id: string,
+    fecha: string,
+    estado: EstadoAsistencia,
+    justificacion?: string
+  ) =>
     http.post<{ ok: boolean }>('/asistencias/marcar-manual', {
       alumna_id,
       fecha,

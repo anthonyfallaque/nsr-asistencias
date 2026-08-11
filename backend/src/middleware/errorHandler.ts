@@ -82,14 +82,20 @@ function mensajeDuplicado(constraint?: string): string {
   if (!constraint) return 'Ya existe un registro con esos datos.';
   if (constraint.includes('dni')) return 'Ya existe una alumna con ese DNI.';
   if (constraint.includes('email')) return 'Ya existe un usuario con ese email.';
-  if (constraint.includes('alumna_id')) return 'Ya existe un registro de asistencia para esa alumna y fecha.';
+  if (constraint.includes('alumna_id'))
+    return 'Ya existe un registro de asistencia para esa alumna y fecha.';
   if (constraint.includes('qr_token')) return 'Ese código QR ya está asignado.';
   return 'Ya existe un registro con esos datos.';
 }
 
 function clasificar(err: unknown): RespuestaError {
   if (err instanceof AppError) {
-    return { status: err.status, codigo: err.codigo, mensaje: err.message, detalles: err.detalles };
+    return {
+      status: err.status,
+      codigo: err.codigo,
+      mensaje: err.message,
+      detalles: err.detalles,
+    };
   }
 
   if (err instanceof ZodError) {
@@ -102,15 +108,25 @@ function clasificar(err: unknown): RespuestaError {
   }
 
   if (err instanceof Error) {
-    const traducido = traducirErrorPg(err as ErrorPg);
+    // `ErrorPg` sólo añade campos opcionales a `Error`, así que un Error
+    // corriente ya es asignable y la aserción sobraba.
+    const traducido = traducirErrorPg(err);
     if (traducido) return traducido;
 
     // JSON malformado en el cuerpo (body-parser)
     if ('type' in err && (err as { type?: string }).type === 'entity.parse.failed') {
-      return { status: 400, codigo: 'JSON_INVALIDO', mensaje: 'El cuerpo de la petición no es JSON válido.' };
+      return {
+        status: 400,
+        codigo: 'JSON_INVALIDO',
+        mensaje: 'El cuerpo de la petición no es JSON válido.',
+      };
     }
     if ('type' in err && (err as { type?: string }).type === 'entity.too.large') {
-      return { status: 413, codigo: 'CUERPO_DEMASIADO_GRANDE', mensaje: 'El cuerpo de la petición es demasiado grande.' };
+      return {
+        status: 413,
+        codigo: 'CUERPO_DEMASIADO_GRANDE',
+        mensaje: 'El cuerpo de la petición es demasiado grande.',
+      };
     }
   }
 

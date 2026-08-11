@@ -34,7 +34,8 @@ export async function login(datos: {
 
   // Se compara igualmente contra un hash ficticio cuando el usuario no
   // existe: si no, el tiempo de respuesta delata qué emails son reales.
-  const hash = fila?.password_hash ?? '$2a$12$invalidoinvalidoinvalidoinvalidoinvalidoinvalidoinvalidoinv';
+  const hash =
+    fila?.password_hash ?? '$2a$12$invalidoinvalidoinvalidoinvalidoinvalidoinvalidoinvalidoinv';
   const coincide = await bcrypt.compare(datos.password, hash);
 
   if (!fila || !fila.activo || !coincide) {
@@ -42,7 +43,7 @@ export async function login(datos: {
   }
 
   const payload: JwtPayload = { sub: fila.id, email: fila.email, rol: fila.rol };
-  const token = jwt.sign(payload as object, env.JWT_SECRET, {
+  const token = jwt.sign(payload, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'],
   });
 
@@ -83,15 +84,27 @@ export async function cambiarPassword(datos: {
   if (!hashActual) throw errNoAutenticado('La sesión ya no es válida.');
 
   if (!(await bcrypt.compare(datos.actual, hashActual))) {
-    throw new AppError(400, 'PASSWORD_ACTUAL_INCORRECTA', 'La contraseña actual no es correcta');
+    throw new AppError(
+      400,
+      'PASSWORD_ACTUAL_INCORRECTA',
+      'La contraseña actual no es correcta'
+    );
   }
 
   if (await bcrypt.compare(datos.nueva, hashActual)) {
-    throw new AppError(400, 'PASSWORD_REPETIDA', 'La nueva contraseña debe ser distinta de la actual');
+    throw new AppError(
+      400,
+      'PASSWORD_REPETIDA',
+      'La nueva contraseña debe ser distinta de la actual'
+    );
   }
 
   await withTx(async (cx) => {
-    const afectadas = await usuariosRepo.cambiarPassword(datos.usuarioId, await hashear(datos.nueva), cx);
+    const afectadas = await usuariosRepo.cambiarPassword(
+      datos.usuarioId,
+      await hashear(datos.nueva),
+      cx
+    );
     if (afectadas === 0) throw errNoEncontrado('Usuario no encontrado');
 
     await auditoria.registrar(cx, {
