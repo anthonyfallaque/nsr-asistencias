@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/shared/lib/cn';
-import { desdeFechaISO, esHoy, fechaCorta } from '@/shared/lib/datetime';
+import { esHoy, fechaCorta } from '@/shared/lib/datetime';
 import { porcentajeAsistencia } from '@/shared/domain/asistencia';
 import { EmptyState } from '@/shared/ui';
 import { CalendarRange } from 'lucide-react';
@@ -15,21 +15,6 @@ interface DiaCalculado {
   hoy: boolean;
 }
 
-/**
- * Un sábado no es un día con 0 % de asistencia: es un día sin clases.
- *
- * El backend genera la serie con `generate_series` sobre días naturales, de
- * modo que fines de semana y feriados aparecen como ausencia total. Sin este
- * filtro, dos de cada siete barras son ruido y hunden la lectura de la
- * semana. Se detecta en el cliente a partir de la fecha; cuando el backend
- * tenga tabla de días lectivos, esta heurística se sustituye por ese dato
- * (los feriados siguen sin detectarse aquí).
- */
-function esFinDeSemana(fecha: string): boolean {
-  const dia = desdeFechaISO(fecha).getDay();
-  return dia === 0 || dia === 6;
-}
-
 function colorDePct(pct: number): string {
   if (pct >= 90) return 'var(--color-success)';
   if (pct >= 75) return 'var(--color-warning)';
@@ -39,10 +24,13 @@ function colorDePct(pct: number): string {
 export function TendenciaChart({ datos }: { datos: TendenciaDia[] }) {
   const [activo, setActivo] = useState<number | null>(null);
 
+  // El servidor ya devuelve solo días lectivos: filtra fines de semana,
+  // feriados y vacaciones contra el calendario escolar. Aquí solo queda
+  // descartar los días sin alumnado, que no son representables.
   const dias: DiaCalculado[] = datos.map((dia) => ({
     dia,
     pct: porcentajeAsistencia(dia),
-    lectivo: !esFinDeSemana(dia.fecha) && Number(dia.total) > 0,
+    lectivo: Number(dia.total) > 0,
     hoy: esHoy(dia.fecha),
   }));
 

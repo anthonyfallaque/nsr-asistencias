@@ -375,12 +375,35 @@ export async function tendencia(
 ): Promise<TendenciaDia[]> {
   return filas<TendenciaDia>(
     ex,
+    /**
+     * Se devuelven los últimos N días LECTIVOS, no los últimos N naturales.
+     *
+     * Antes la serie salía de un generate_series sobre días corridos, así
+     * que sábados, domingos y feriados aparecían con el 100 % de ausencia:
+     * con el valor por defecto de 7 días, dos barras de siete eran ruido.
+     *
+     * Un día cuenta como lectivo salvo que `dias_lectivos` diga lo
+     * contrario, de modo que el sistema sigue funcionando aunque la tabla
+     * esté vacía y cargarla solo mejora la precisión.
+     *
+     * La ventana de búsqueda es el triple de N para que quepan fines de
+     * semana y feriados seguidos y aun así se completen los N días.
+     */
     `WITH dias AS (
-       SELECT generate_series(
-         (NOW() AT TIME ZONE 'America/Lima')::date - ($1::int - 1),
-         (NOW() AT TIME ZONE 'America/Lima')::date,
-         '1 day'::interval
-       )::date AS fecha
+       SELECT fecha FROM (
+         SELECT d::date AS fecha
+           FROM generate_series(
+             (NOW() AT TIME ZONE 'America/Lima')::date - ($1::int * 3),
+             (NOW() AT TIME ZONE 'America/Lima')::date,
+             '1 day'::interval
+           ) d
+          WHERE NOT EXISTS (
+            SELECT 1 FROM dias_lectivos dl
+             WHERE dl.fecha = d::date AND dl.lectivo = false
+          )
+          ORDER BY d DESC
+          LIMIT $1::int
+       ) ultimos
      ),
      alumnado AS (
        SELECT id, seccion_id FROM alumnas

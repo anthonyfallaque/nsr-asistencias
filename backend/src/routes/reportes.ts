@@ -8,7 +8,7 @@ import {
   rankingTardanzas,
   reporteRango,
 } from '../controllers/reportes.controller.js';
-import { requireAuth } from '../middleware/auth.js';
+import { exigirPasswordVigente, requireAuth } from '../middleware/auth.js';
 import { limiteAutenticado } from '../middleware/rateLimit.js';
 import { requireRol } from '../middleware/roles.js';
 import { scopeSecciones } from '../middleware/scope.js';
@@ -17,6 +17,7 @@ import { validate } from '../middleware/validate.js';
 const router = Router();
 
 router.use(requireAuth);
+router.use(exigirPasswordVigente);
 router.use(limiteAutenticado);
 router.use(requireRol('auxiliar', 'tutora', 'directora', 'admin'));
 router.use(scopeSecciones);

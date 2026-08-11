@@ -105,7 +105,15 @@ export function Layout() {
 
       <BottomNav rol={usuario?.rol} />
 
-      <CambiarPasswordModal open={password.isOpen} onClose={password.close} />
+      {/* Con la contraseña inicial sin cambiar el servidor devuelve 403 en
+          todos los endpoints de datos, así que el diálogo se abre solo y no
+          se puede esquivar: cerrarlo dejaría al usuario ante una pantalla
+          llena de errores sin explicación. */}
+      <CambiarPasswordModal
+        open={debeCambiar || password.isOpen}
+        onClose={debeCambiar ? () => undefined : password.close}
+        obligatorio={debeCambiar}
+      />
     </div>
   );
 }

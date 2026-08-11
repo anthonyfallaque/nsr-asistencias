@@ -22,9 +22,16 @@ interface Errores {
 export function CambiarPasswordModal({
   open,
   onClose,
+  obligatorio = false,
 }: {
   open: boolean;
   onClose: () => void;
+  /**
+   * La cuenta arrastra la contraseña inicial y el servidor devuelve 403 en
+   * todo lo demás. Se retira la salida porque no hay nada que hacer detrás
+   * del diálogo: dejar cerrar solo llevaría a una pantalla de errores.
+   */
+  obligatorio?: boolean;
 }) {
   const toast = useToast();
   const marcarCambiada = useAuth((s) => s.marcarPasswordCambiada);
@@ -91,15 +98,21 @@ export function CambiarPasswordModal({
     <Modal
       open={open}
       onClose={cerrar}
-      title="Cambiar contraseña"
-      description={REGLAS_PASSWORD.descripcion}
+      title={obligatorio ? 'Cambia tu contraseña para continuar' : 'Cambiar contraseña'}
+      description={
+        obligatorio
+          ? `Tu cuenta todavía usa la contraseña inicial. ${REGLAS_PASSWORD.descripcion}`
+          : REGLAS_PASSWORD.descripcion
+      }
       size="sm"
       closeOnBackdrop={false}
       footer={
         <>
-          <Button variant="secondary" onClick={cerrar} disabled={isPending}>
-            Cancelar
-          </Button>
+          {!obligatorio && (
+            <Button variant="secondary" onClick={cerrar} disabled={isPending}>
+              Cancelar
+            </Button>
+          )}
           <Button variant="primary" type="submit" form="form-password" loading={isPending}>
             Guardar
           </Button>

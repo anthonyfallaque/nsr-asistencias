@@ -7,7 +7,7 @@ import {
   crear,
   listar,
 } from '../controllers/usuarios.controller.js';
-import { requireAuth } from '../middleware/auth.js';
+import { exigirPasswordVigente, requireAuth } from '../middleware/auth.js';
 import { requireRol } from '../middleware/roles.js';
 import { validate } from '../middleware/validate.js';
 
@@ -15,6 +15,7 @@ const router = Router();
 
 // Gestión de personal: sólo administración.
 router.use(requireAuth);
+router.use(exigirPasswordVigente);
 router.use(requireRol('admin'));
 
 router.get('/', listar);
