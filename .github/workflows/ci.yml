@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Una serie por rama: si se empuja dos veces seguidas, la primera ejecución
+# se cancela en lugar de competir por los ejecutores.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    name: ${{ matrix.proyecto }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Sin fail-fast: si falla el frontend se quiere ver igualmente el
+      # resultado del backend, no quedarse a medias del diagnóstico.
+      fail-fast: false
+      matrix:
+        proyecto: [frontend, backend]
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.proyecto }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ${{ matrix.proyecto }}/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Formato
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tipos
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # El build del backend sólo compila TypeScript, pero config/env.ts
+          # valida el entorno al importarse. Valores de relleno para que la
+          # verificación no dependa de secretos reales.
+          JWT_SECRET: solo-para-ci-no-es-un-secreto-real-0123456789
+          DATABASE_URL: postgres://ci:ci@localhost:5432/ci
+          FRONTEND_URL: http://localhost:5173

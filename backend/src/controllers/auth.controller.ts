@@ -1,80 +1,56 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { z } from 'zod';
-import { queryOne, query } from '../db.js';
-import type { JwtPayload, Rol } from '../types/index.js';
+import { bodyDe } from '../middleware/validate.js';
+import * as servicio from '../services/auth.service.js';
 
-const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
+// ── Esquemas ─────────────────────────────────────────────────
+
+export const LoginSchema = z.object({
+  email: z.string().trim().email().max(255),
+  password: z.string().min(1).max(200),
 });
 
+/**
+ * Mínimo de 10 caracteres: son cuentas de personal del colegio con
+ * acceso a datos de menores, no un foro.
+ */
+export const CambiarPasswordSchema = z.object({
+  actual: z.string().min(1).max(200),
+  nueva: z
+    .string()
+    .min(10, 'La nueva contraseña debe tener al menos 10 caracteres')
+    .max(200)
+    .refine((v) => /[a-zA-Z]/.test(v) && /\d/.test(v), 'Debe combinar letras y números'),
+});
+
+// ── Controladores ────────────────────────────────────────────
+
 export async function login(req: Request, res: Response): Promise<void> {
-  try {
-    const parsed = LoginSchema.safeParse(req.body);
-    if (!parsed.success) {
-      res.status(400).json({ error: 'Email o contraseña inválidos' });
-      return;
-    }
-
-    const { email, password } = parsed.data;
-
-    const row = await queryOne<{
-      id: string; email: string; nombre: string;
-      password_hash: string; rol: Rol; activo: boolean;
-    }>(
-      `SELECT u.id, u.email, u.nombre, u.password_hash, r.nombre AS rol, u.activo
-       FROM usuarios u
-       JOIN roles r ON r.id = u.rol_id
-       WHERE u.email = $1`,
-      [email]
-    );
-
-    if (!row || !row.activo) {
-      res.status(401).json({ error: 'Credenciales inválidas' });
-      return;
-    }
-
-    const ok = await bcrypt.compare(password, row.password_hash);
-    if (!ok) {
-      res.status(401).json({ error: 'Credenciales inválidas' });
-      return;
-    }
-
-    const payload: JwtPayload = { sub: row.id, email: row.email, rol: row.rol };
-    const token = jwt.sign(payload as object, process.env.JWT_SECRET as string, {
-      expiresIn: '8h',
-    });
-
-    await query(
-      `INSERT INTO auditoria (usuario_id, accion, ip) VALUES ($1, 'login', $2)`,
-      [row.id, req.ip]
-    );
-
-    res.json({
-      token,
-      usuario: { id: row.id, email: row.email, nombre: row.nombre, rol: row.rol },
-    });
-  } catch (err) {
-    console.error('[login]', err);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+  const { email, password } = bodyDe<z.infer<typeof LoginSchema>>(req);
+  res.json(await servicio.login({ email, password, ip: req.ip }));
 }
 
 export async function me(req: Request, res: Response): Promise<void> {
-  try {
-    const row = await queryOne<{ id: string; email: string; nombre: string; rol: string }>(
-      `SELECT u.id, u.email, u.nombre, r.nombre AS rol
-       FROM usuarios u JOIN roles r ON r.id = u.rol_id
-       WHERE u.id = $1 AND u.activo = true`,
-      [req.usuario!.id]
-    );
+  const usuario = await servicio.perfil(req.usuario!.id);
 
-    if (!row) { res.status(404).json({ error: 'Usuario no encontrado' }); return; }
-    res.json(row);
-  } catch (err) {
-    console.error('[me]', err);
-    res.status(500).json({ error: 'Error interno del servidor' });
-  }
+  res.json({
+    id: usuario.id,
+    email: usuario.email,
+    nombre: usuario.nombre,
+    rol: usuario.rol,
+    debe_cambiar_password: usuario.debe_cambiar_password,
+  });
+}
+
+export async function cambiarPassword(req: Request, res: Response): Promise<void> {
+  const { actual, nueva } = bodyDe<z.infer<typeof CambiarPasswordSchema>>(req);
+
+  await servicio.cambiarPassword({
+    usuarioId: req.usuario!.id,
+    actual,
+    nueva,
+    ip: req.ip,
+  });
+
+  res.json({ ok: true, mensaje: 'Contraseña actualizada. Vuelve a iniciar sesión.' });
 }

@@ -1,0 +1,142 @@
+/**
+ * Design tokens — fuente única de verdad para color, tipografía, espaciado,
+ * radios, sombras y movimiento.
+ *
+ * Nada en la aplicación debe declarar un color, radio o sombra literal:
+ * todo se consume vía Tailwind, que mapea estas variables (tailwind.config.js).
+ *
+ * Los neutros llevan una desviación fría deliberada (matiz ~215°) para
+ * armonizar con el azul institucional. Un gris puro junto al navy se lee
+ * sucio; este armoniza.
+ *
+ * Preparado para tema oscuro: basta redefinir este bloque bajo
+ * `:root[data-theme="dark"]`. Los componentes no necesitan cambiar porque
+ * consumen tokens semánticos, nunca valores.
+ */
+
+:root {
+  /* ── Superficies ──────────────────────────────────────────────────────── */
+  --color-canvas: #fbfbfc; /* fondo de página */
+  --color-surface: #ffffff; /* tarjetas, paneles, modales */
+  --color-surface-sunken: #f6f7f9; /* cabeceras de tabla, zonas hundidas */
+  --color-surface-hover: #f3f4f6;
+  --color-surface-active: #eceef1;
+
+  /* ── Bordes ───────────────────────────────────────────────────────────── */
+  /* El borde de 1px es el separador principal del sistema, no la sombra.  */
+  --color-border: #e6e8eb;
+  --color-border-strong: #d3d7dd;
+  --color-border-focus: #002147;
+
+  /* ── Texto ────────────────────────────────────────────────────────────── */
+  /* Contraste medido sobre --color-canvas (#fbfbfc). Los tres primeros
+     superan 4.5:1 y son aptos para texto a cualquier tamaño.
+     `subtle` se queda en 3.8:1: cumple el 3:1 exigido a elementos de
+     interfaz no textuales, así que solo debe usarse en iconos decorativos y
+     controles deshabilitados — nunca en texto que haya que leer. */
+  --color-text: #14171a; /* 17.4:1 — titulares y datos */
+  --color-text-secondary: #545d6b; /*  6.4:1 — cuerpo */
+  --color-text-muted: #667085; /*  4.8:1 — etiquetas, metadatos, placeholders */
+  --color-text-subtle: #79818f; /*  3.8:1 — solo iconos y deshabilitado */
+  --color-text-inverse: #ffffff;
+
+  /* ── Acento institucional (acción) ────────────────────────────────────── */
+  /* Azul del colegio. Reservado a lo accionable y al estado activo.       */
+  --color-accent: #002147;
+  --color-accent-hover: #00305f;
+  --color-accent-active: #001732;
+  --color-accent-soft: #eef2f7; /* fondo de item de nav activo */
+  --color-accent-soft-hover: #e4eaf2;
+  --color-accent-border: #c6d3e2;
+  --color-accent-fg: #ffffff;
+
+  /* ── Acento secundario (marca) ────────────────────────────────────────── */
+  /* Guinda del colegio. Uso muy puntual: marcadores y acentos de marca.   */
+  --color-brand: #660000;
+  --color-brand-soft: #fdf2f2;
+  --color-brand-border: #e8cfcf;
+
+  /* ── Semánticos ───────────────────────────────────────────────────────── */
+  /* Independientes del acento: comunican estado, no jerarquía.           */
+  --color-success: #067647;
+  --color-success-soft: #ecfdf3;
+  --color-success-border: #abefc6;
+
+  --color-warning: #b54708;
+  --color-warning-soft: #fffaeb;
+  --color-warning-border: #fedf89;
+
+  --color-danger: #b42318;
+  --color-danger-soft: #fef3f2;
+  --color-danger-border: #fecdca;
+
+  --color-info: #175cd3;
+  --color-info-soft: #eff8ff;
+  --color-info-border: #b2ddff;
+
+  /* ── Tipografía ───────────────────────────────────────────────────────── */
+  /* Inter: alto de x elevado y cifras tabulares — diseñada para UI densa. */
+  --font-sans:
+    'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Escala de 14px base — estándar en dashboards densos (Linear, Stripe). */
+  --text-2xs: 0.6875rem; /* 11px — micro-etiquetas */
+  --text-xs: 0.75rem; /* 12px — etiquetas, captions */
+  --text-sm: 0.8125rem; /* 13px — celdas de tabla, texto secundario */
+  --text-base: 0.875rem; /* 14px — texto por defecto de la interfaz */
+  --text-md: 1rem; /* 16px — énfasis */
+  --text-lg: 1.125rem; /* 18px — títulos de sección */
+  --text-xl: 1.375rem; /* 22px — título de página */
+  --text-2xl: 1.75rem; /* 28px — cifras KPI */
+  --text-3xl: 2.25rem; /* 36px — cifra protagonista */
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+
+  --tracking-tight: -0.011em; /* compensa el ensanchado óptico en display */
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em; /* etiquetas en versalitas */
+
+  /* ── Radios ───────────────────────────────────────────────────────────── */
+  /* Contenidos a propósito: el exceso de redondeo abarata el conjunto.    */
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 6px; /* botones, inputs — el valor por defecto */
+  --radius-lg: 8px; /* tarjetas, paneles */
+  --radius-xl: 12px; /* modales */
+  --radius-full: 9999px;
+
+  /* ── Sombras ──────────────────────────────────────────────────────────── */
+  /* Mínimas. La separación la da el borde; la sombra solo indica altura. */
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 8px -2px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
+  --shadow-lg: 0 12px 16px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+  --shadow-overlay: 0 24px 48px -12px rgba(16, 24, 40, 0.18);
+  --shadow-focus: 0 0 0 3px rgba(0, 33, 71, 0.12);
+
+  /* ── Movimiento ───────────────────────────────────────────────────────── */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --duration-slow: 280ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Capas ────────────────────────────────────────────────────────────── */
+  /* Centralizado: evita la guerra de z-index arbitrarios.                 */
+  --z-sticky: 10;
+  --z-sidebar: 20;
+  --z-dropdown: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+
+  /* ── Layout ───────────────────────────────────────────────────────────── */
+  --sidebar-width: 232px;
+  --sidebar-width-collapsed: 60px;
+  --topbar-height: 56px;
+  --content-max-width: 1280px;
+}
