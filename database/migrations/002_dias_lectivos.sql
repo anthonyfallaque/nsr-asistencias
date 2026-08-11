@@ -78,4 +78,14 @@ SELECT d::date, false, 'Fin de semana'
  WHERE EXTRACT(ISODOW FROM d) IN (6, 7)
 ON CONFLICT (fecha) DO NOTHING;
 
+-- ── Cuentas con contraseña publicada ────────────────────────────────────
+-- Las credenciales del seed original están en el historial del repositorio,
+-- así que estas cuentas deben cambiarla en su siguiente acceso. La
+-- migración 001 añadió la columna con DEFAULT false, que deja fuera
+-- justamente a las cuentas para las que se creó el mecanismo.
+UPDATE usuarios
+   SET debe_cambiar_password = true
+ WHERE email IN ('admin@nsr.edu.pe', 'portero@nsr.edu.pe')
+   AND debe_cambiar_password = false;
+
 COMMIT;
