@@ -1,9 +1,31 @@
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+
+  build: {
+    // Separar las dependencias pesadas del arranque. ExcelJS y html5-qrcode
+    // solo se cargan cuando la ruta que los usa se abre de verdad, así el
+    // portero que únicamente escanea no descarga el motor de hojas de cálculo.
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          query: ['@tanstack/react-query'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 700,
+  },
+
   plugins: [
     react(),
     nodePolyfills({ protocolImports: true }),
