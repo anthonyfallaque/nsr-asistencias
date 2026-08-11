@@ -121,7 +121,7 @@ CREATE TYPE origen_asistencia AS ENUM ('escaneo', 'offline', 'manual');
 CREATE TABLE asistencias (
   id              UUID              PRIMARY KEY DEFAULT gen_random_uuid(),
   alumna_id       UUID              NOT NULL REFERENCES alumnas(id),
-  fecha           DATE              NOT NULL DEFAULT (NOW() AT TIME ZONE 'America/Lima')::date,
+  fecha           DATE              NOT NULL DEFAULT ((NOW() AT TIME ZONE 'America/Lima')::date),
   hora_escaneo    TIMESTAMPTZ,
   estado          estado_asistencia NOT NULL DEFAULT 'ausente',
   origen          origen_asistencia NOT NULL DEFAULT 'manual',

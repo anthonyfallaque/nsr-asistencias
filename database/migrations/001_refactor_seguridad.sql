@@ -56,7 +56,7 @@ END $$;
 -- La fecha por defecto era CURRENT_DATE (TZ del servidor, UTC en Render):
 -- desde las 19:00 de Lima ya adelantaba un día.
 ALTER TABLE asistencias
-  ALTER COLUMN fecha SET DEFAULT (NOW() AT TIME ZONE 'America/Lima')::date;
+  ALTER COLUMN fecha SET DEFAULT ((NOW() AT TIME ZONE 'America/Lima')::date);
 
 ALTER TABLE asistencias
   ADD COLUMN IF NOT EXISTS seccion_id INT REFERENCES secciones(id);
