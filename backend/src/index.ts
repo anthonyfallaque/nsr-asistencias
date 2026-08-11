@@ -23,6 +23,36 @@ app.use(cors({
   credentials: true,
 }));
 
+// ── Health check ─────────────────────────────────────────────
+// Va antes del rate limit: los monitores externos y el health check
+// de Render no deben consumir el presupuesto de peticiones.
+async function healthCheck(_req: express.Request, res: express.Response): Promise<void> {
+  const inicio = Date.now();
+  try {
+    await pool.query('SELECT 1');
+    res.json({
+      status: 'ok',
+      db: { conectada: true, latencia_ms: Date.now() - inicio },
+      uptime_s: Math.round(process.uptime()),
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    // El código (XX000, ECONNREFUSED, ETIMEDOUT...) basta para diagnosticar
+    // sin exponer host ni tenant en un endpoint público. El detalle va al log.
+    const e = err as { code?: string; message?: string };
+    console.error('[health] DB inaccesible:', e.code ?? '(sin code)', '|', e.message);
+    res.status(503).json({
+      status: 'error',
+      db: { conectada: false, codigo: e.code ?? null, latencia_ms: Date.now() - inicio },
+      uptime_s: Math.round(process.uptime()),
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+
+app.get('/health', healthCheck);
+app.get('/api/health', healthCheck);
+
 // Rate limiting global
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -40,16 +70,6 @@ const loginLimit = rateLimit({
 
 // ── Parsers ──────────────────────────────────────────────────
 app.use(express.json({ limit: '1mb' }));
-
-// ── Health check ─────────────────────────────────────────────
-app.get('/health', async (_req, res) => {
-  try {
-    await pool.query('SELECT 1');
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
-  } catch {
-    res.status(503).json({ status: 'error', db: 'unreachable' });
-  }
-});
 
 // ── Rutas ────────────────────────────────────────────────────
 app.use('/api/auth', loginLimit, authRoutes);
