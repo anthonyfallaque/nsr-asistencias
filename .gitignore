@@ -5,3 +5,9 @@ dist/
 .env.production
 .DS_Store
 *.log
+
+# Padrones reales: contienen datos personales de menores
+Plantilla_Alumnas_NSR.xlsx
+*_Alumnas_*.xlsx
+padron*.xlsx
+padron*.csv
