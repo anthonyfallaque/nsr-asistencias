@@ -1,26 +1,78 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
+import { errNoAutenticado } from '../errors/AppError.js';
+import * as usuariosRepo from '../repositories/usuarios.repo.js';
 import type { JwtPayload, Usuario } from '../types/index.js';
 
-export function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Token requerido' });
-    return;
+/**
+ * Caché de usuarios verificados.
+ *
+ * El token dura 8 h y antes se reconstruía `req.usuario` sólo con su
+ * payload (con `activo: true` fijo), así que desactivar a alguien no
+ * surtía efecto hasta que expirase. Ahora se consulta la base de datos,
+ * con una caché corta para no añadir una consulta a cada petición.
+ */
+const TTL_MS = 45_000;
+
+interface Entrada {
+  usuario: Usuario;
+  expira: number;
+}
+
+const cache = new Map<string, Entrada>();
+
+/** Invalida la caché de un usuario tras cambiarle rol, estado o contraseña. */
+export function invalidarCacheUsuario(id: string): void {
+  cache.delete(id);
+}
+
+export function limpiarCacheUsuarios(): void {
+  cache.clear();
+}
+
+async function resolverUsuario(id: string): Promise<Usuario | null> {
+  const ahora = Date.now();
+  const enCache = cache.get(id);
+  if (enCache && enCache.expira > ahora) return enCache.usuario;
+
+  const usuario = await usuariosRepo.buscarPorId(id);
+  if (!usuario) {
+    cache.delete(id);
+    return null;
   }
 
-  const token = header.slice(7);
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    req.usuario = {
-      id: payload.sub,
-      email: payload.email,
-      nombre: '',
-      rol: payload.rol,
-      activo: true,
-    } satisfies Usuario;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Token inválido o expirado' });
+  cache.set(id, { usuario, expira: ahora + TTL_MS });
+
+  // Poda perezosa: sin esto la caché crecería sin límite.
+  if (cache.size > 500) {
+    for (const [clave, entrada] of cache) {
+      if (entrada.expira <= ahora) cache.delete(clave);
+    }
   }
+
+  return usuario;
+}
+
+export async function requireAuth(req: Request, _res: Response, next: NextFunction): Promise<void> {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) {
+    throw errNoAutenticado('Token requerido');
+  }
+
+  let payload: JwtPayload;
+  try {
+    payload = jwt.verify(header.slice(7), env.JWT_SECRET) as JwtPayload;
+  } catch {
+    throw errNoAutenticado('Token inválido o expirado');
+  }
+
+  const usuario = await resolverUsuario(payload.sub);
+  if (!usuario || !usuario.activo) {
+    // Mismo mensaje para "borrado" y "desactivado": no hace falta decir cuál.
+    throw errNoAutenticado('La sesión ya no es válida. Vuelve a iniciar sesión.');
+  }
+
+  req.usuario = usuario;
+  next();
 }
