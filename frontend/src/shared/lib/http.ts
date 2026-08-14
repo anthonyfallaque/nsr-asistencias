@@ -106,8 +106,17 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
     // El token caducó o fue revocado. Sin esto la aplicación quedaba en
     // sesión zombi: la interfaz parecía autenticada y cada acción fallaba
     // en silencio hasta que el usuario recargaba a mano.
-    alExpirarSesion?.();
-    throw new ApiError(401, 'Tu sesión ha caducado. Vuelve a iniciar sesión.');
+    //
+    // Pero solo cuando HABÍA sesión. Si no se envió token, el 401 viene del
+    // login o de una ruta pública, y ahí significa "credenciales
+    // incorrectas": pisarlo con "tu sesión ha caducado" deja al usuario
+    // leyendo un mensaje imposible —nunca hubo sesión que caducar— y le
+    // oculta el motivo real del rechazo. Ese caso cae al manejo de errores
+    // de abajo, que usa el mensaje del servidor.
+    if (tokenActual) {
+      alExpirarSesion?.();
+      throw new ApiError(401, 'Tu sesión ha caducado. Vuelve a iniciar sesión.');
+    }
   }
 
   if (!response.ok) {
@@ -132,6 +141,8 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 function mensajePorDefecto(status: number): string {
+  // 401 sin sesión previa: es el login rechazando las credenciales.
+  if (status === 401) return 'Correo o contraseña incorrectos';
   if (status === 403) return 'No tienes permiso para hacer esto';
   if (status === 404) return 'No se encontró lo que buscabas';
   if (status === 409) return 'Ese registro ya existe';
