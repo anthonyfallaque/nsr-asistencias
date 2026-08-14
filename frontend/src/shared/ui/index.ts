@@ -15,6 +15,7 @@ export { Input, type InputProps } from './Input';
 export { Modal, type ModalProps } from './Modal';
 export { PageHeader, type PageHeaderProps } from './PageHeader';
 export { Select, type SelectProps } from './Select';
+export { Sheet, type SheetProps } from './Sheet';
 export { Skeleton, SkeletonText, SkeletonRows } from './Skeleton';
 export { Spinner } from './Spinner';
 export { ToastProvider, useToast } from './Toast';

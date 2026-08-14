@@ -1,11 +1,14 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { KeyRound } from 'lucide-react';
 import { Button } from '@/shared/ui';
+import { cn } from '@/shared/lib/cn';
 import { useDisclosure } from '@/shared/hooks/useDisclosure';
 import { useAuth, useUsuario } from '@/features/auth/store';
 import { CambiarPasswordModal } from '@/features/auth/CambiarPasswordModal';
+import type { IdAccionUsuario } from '@/config/userMenu';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
+import { UserMenu } from './UserMenu';
 
 function iniciales(nombre: string): string {
   return (
@@ -36,10 +39,23 @@ export function Layout() {
   const logout = useAuth((s) => s.logout);
   const navigate = useNavigate();
   const password = useDisclosure();
+  const menu = useDisclosure();
 
   function cerrarSesion() {
     logout();
     navigate('/login', { replace: true });
+  }
+
+  /**
+   * Punto único donde se resuelven las acciones de cuenta.
+   *
+   * La barra lateral y el menú de móvil despachan por el mismo `id`, así que
+   * añadir una acción en `config/userMenu.ts` solo exige un caso más aquí,
+   * no tocar las dos vistas.
+   */
+  function ejecutarAccion(id: IdAccionUsuario) {
+    if (id === 'cerrar-sesion') cerrarSesion();
+    if (id === 'cambiar-password') password.open();
   }
 
   const nombre = usuario?.nombre ?? '';
@@ -51,8 +67,7 @@ export function Layout() {
         rol={usuario?.rol}
         nombre={nombreCorto(nombre)}
         iniciales={iniciales(nombre)}
-        onLogout={cerrarSesion}
-        onCambiarPassword={password.open}
+        onAccion={ejecutarAccion}
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
@@ -61,12 +76,24 @@ export function Layout() {
             <img src="/logo.png" alt="" className="h-6 w-6 rounded object-contain shrink-0" />
             <span className="text-base font-semibold text-content truncate">Asistencias</span>
           </div>
-          <div
-            className="h-7 w-7 rounded-full bg-accent-soft border border-accent-border flex items-center justify-center shrink-0"
-            title={nombre}
+          {/* El avatar era decorativo y en movil no habia ninguna forma de
+              cerrar sesion ni de cambiar la contrasena. Ahora es el acceso
+              al menu de cuenta, que es donde todo el mundo lo busca. */}
+          <button
+            type="button"
+            onClick={menu.open}
+            aria-label={`Cuenta de ${nombre}`}
+            aria-haspopup="dialog"
+            aria-expanded={menu.isOpen}
+            className={cn(
+              'h-8 w-8 rounded-full bg-accent-soft border border-accent-border',
+              'flex items-center justify-center shrink-0 transition-colors',
+              'hover:bg-accent-soft-hover active:bg-accent-soft-hover',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1'
+            )}
           >
             <span className="text-2xs font-semibold text-accent">{iniciales(nombre)}</span>
-          </div>
+          </button>
         </header>
 
         {/* pb-20 en móvil deja sitio a la barra inferior; sin él, la última
@@ -104,6 +131,16 @@ export function Layout() {
       </div>
 
       <BottomNav rol={usuario?.rol} />
+
+      <UserMenu
+        open={menu.isOpen}
+        onClose={menu.close}
+        nombre={nombre}
+        email={usuario?.email ?? ''}
+        rol={usuario?.rol}
+        iniciales={iniciales(nombre)}
+        onAccion={ejecutarAccion}
+      />
 
       {/* Con la contraseña inicial sin cambiar el servidor devuelve 403 en
           todos los endpoints de datos, así que el diálogo se abre solo y no

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { PanelLeftClose, PanelLeftOpen, LogOut, KeyRound } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ACCIONES_USUARIO, type IdAccionUsuario } from '@/config/userMenu';
 import { cn } from '@/shared/lib/cn';
 import { Button } from '@/shared/ui';
 import { navParaRol, ROL_LABEL, type Rol } from '@/config/navigation';
@@ -34,8 +35,8 @@ export interface SidebarProps {
   rol: Rol | undefined;
   nombre: string;
   iniciales: string;
-  onLogout: () => void;
-  onCambiarPassword: () => void;
+  /** Despacha por id; las acciones se definen en `config/userMenu.ts`. */
+  onAccion: (id: IdAccionUsuario) => void;
 }
 
 /**
@@ -49,7 +50,7 @@ export interface SidebarProps {
  * El estado plegado persiste en localStorage: en pantallas pequeñas el
  * usuario lo pliega una vez y no debería tener que repetirlo cada mañana.
  */
-export function Sidebar({ rol, nombre, iniciales, onLogout, onCambiarPassword }: SidebarProps) {
+export function Sidebar({ rol, nombre, iniciales, onAccion }: SidebarProps) {
   const [expandido, setExpandido] = useState(
     () => localStorage.getItem('nsr-sidebar') !== 'collapsed'
   );
@@ -146,50 +147,48 @@ export function Sidebar({ rol, nombre, iniciales, onLogout, onCambiarPassword }:
           )}
         </div>
 
-        <div className={cn('flex flex-col mt-1', !expandido && 'items-center')}>
+        {/* Las acciones salen de config/userMenu.ts, igual que en móvil.
+            Antes estaban escritas a mano aquí, que es exactamente por lo que
+            el móvil se quedó sin ninguna. */}
+        <div className={cn('flex flex-col gap-0.5 mt-1', !expandido && 'items-center')}>
+          {ACCIONES_USUARIO.map((accion) => {
+            const Icon = accion.icon;
+            return (
+              <Button
+                key={accion.id}
+                variant="ghost"
+                size="sm"
+                onClick={() => onAccion(accion.id)}
+                iconOnly={!expandido}
+                aria-label={!expandido ? accion.label : undefined}
+                icon={<Icon className="h-3.5 w-3.5" aria-hidden="true" />}
+                className={cn(
+                  expandido && 'w-full justify-start',
+                  accion.tono === 'peligro' &&
+                    'text-danger hover:bg-danger-soft hover:text-danger'
+                )}
+              >
+                {accion.label}
+              </Button>
+            );
+          })}
+
           <Button
             variant="ghost"
             size="sm"
-            onClick={onCambiarPassword}
-            iconOnly={!expandido}
-            aria-label={!expandido ? 'Cambiar contraseña' : undefined}
-            icon={<KeyRound className="h-3.5 w-3.5" aria-hidden="true" />}
-            className={cn(expandido && 'w-full justify-start')}
-          >
-            Cambiar contraseña
-          </Button>
-
-          <div
-            className={cn('flex gap-1', expandido ? 'items-center' : 'flex-col items-center')}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLogout}
-              iconOnly={!expandido}
-              aria-label={!expandido ? 'Cerrar sesión' : undefined}
-              icon={<LogOut className="h-3.5 w-3.5" aria-hidden="true" />}
-              className={cn(expandido && 'flex-1 justify-start')}
-            >
-              Cerrar sesión
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              iconOnly
-              onClick={alternar}
-              aria-label={expandido ? 'Plegar la navegación' : 'Desplegar la navegación'}
-              aria-expanded={expandido}
-              icon={
-                expandido ? (
-                  <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
-                ) : (
-                  <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
-                )
-              }
-            />
-          </div>
+            iconOnly
+            onClick={alternar}
+            aria-label={expandido ? 'Plegar la navegación' : 'Desplegar la navegación'}
+            aria-expanded={expandido}
+            icon={
+              expandido ? (
+                <PanelLeftClose className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <PanelLeftOpen className="h-3.5 w-3.5" aria-hidden="true" />
+              )
+            }
+            className={cn(expandido && 'self-start mt-0.5')}
+          />
         </div>
       </div>
     </aside>
